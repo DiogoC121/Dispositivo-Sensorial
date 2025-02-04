@@ -202,17 +202,17 @@ int main(void)
             memcpy(dadosADC + 16, &strain_gauge_z, sizeof(float));            
             // Envia os dados via NRF24L01+
             NRF24L01_SetTXMode();
-            NRF24L01_WritePayload(dadosADC, 20);
+            NRF24L01_WritePayload(dadosADC, sizeof(dadosADC));
             NRF24L01_StandbyMode();
             
-            uint16_t dadosMPU[24];
-            memcpy(dadosMPU, accel, sizeof(uint16_t));
-            memcpy(dadosMPU + 6, gyro, sizeof(uint16_t));
-            memcpy(dadosMPU + 12, mag, sizeof(uint16_t));
-            memcpy(dadosMPU + 18, &temp, sizeof(uint16_t));
+            uint16_t dadosMPU[10]; // 3 (accel) + 3 (gyro) + 3 (mag) + 1 (temp) = 10 elements
+            memcpy(dadosMPU, accel, sizeof(accel)); // Copy accel array (3 elements)
+            memcpy(dadosMPU + 3, gyro, sizeof(gyro)); // Copy gyro array (3 elements)
+            memcpy(dadosMPU + 6, mag, sizeof(mag)); // Copy mag array (3 elements)
+            memcpy(dadosMPU + 9, &temp, sizeof(temp)); // Copy temp (1 element)
             // Envia os dados via NRF24L01+
             NRF24L01_SetTXMode();
-            NRF24L01_WritePayload(dadosMPU, 24);
+            NRF24L01_WritePayload((uint8_t*)dadosMPU, sizeof(dadosMPU));
             NRF24L01_StandbyMode();
         }
 
@@ -230,12 +230,13 @@ int main(void)
             // Desliga o LED se o comando for 2
             else if (receivedCommand == 2) 
             {
+                ;
                     //TMR1 0; 
-                    TMR1 = 0x00;
+                //    TMR1 = 0x00;
                     //Period = 0.25 s; Frequency = 4000000 Hz; PR1 15625; 
-                    PR1 = 0x3D09;
+                //    PR1 = 0x3D09;
                     //TCKPS 1:64; TON enabled; TSIDL disabled; TCS FOSC/2; TSYNC disabled; TGATE disabled; 
-                    T1CON = 0x8030; // 0x8030 = 1000 0000 0011 0000 (TON=1, TCKPS=11)
+                //    T1CON = 0x8030; // 0x8030 = 1000 0000 0011 0000 (TON=1, TCKPS=11)
             }
             // Se o comando for 0 n faz nada
             else if (receivedCommand == 0) 
