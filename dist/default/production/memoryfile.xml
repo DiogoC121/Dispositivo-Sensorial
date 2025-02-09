@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project>
-  <executable name="dist/default/production/TCC.X.production.elf">
+  <executable name="dist/default/production/TCC_FINAL.X.production.elf">
     <memory name="data">
       <units>bytes</units>
       <length>8192</length>
-      <used>92</used>
-      <free>8100</free>
+      <used>94</used>
+      <free>8098</free>
     </memory>
     <memory name="program">
       <units>bytes</units>
       <length>65274</length>
-      <used>9582</used>
-      <free>55692</free>
+      <used>10545</used>
+      <free>54729</free>
     </memory>
   </executable>
 </project>

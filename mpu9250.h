@@ -209,6 +209,10 @@ uint8_t MPU9250_CheckError(void);
     <p><b>Observações:</b></p>
     O registrador de status deve ser interpretado conforme o datasheet do MPU9250.
 */
+void MPU9250_read_accel(uint8_t* xH, uint8_t* xL, uint8_t* yH, uint8_t* yL, uint8_t* zH, uint8_t* zL);
+void MPU9250_read_gyro(uint8_t* xH, uint8_t* xL, uint8_t* yH, uint8_t* yL, uint8_t* zH, uint8_t* zL);
+void MPU9250_read_mag(uint8_t* xH, uint8_t* xL, uint8_t* yH, uint8_t* yL, uint8_t* zH, uint8_t* zL);
+void MPU9250_ReadData(int16_t *accel, int16_t *gyro, int16_t *mag, int16_t *temp);
 /*
 void __attribute__((interrupt, no_auto_psv)) _INT1Interrupt(void);
 / **

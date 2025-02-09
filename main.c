@@ -1,48 +1,3 @@
-/**
-  Generated main.c file from MPLAB Code Configurator
-
-  @Company
-    Microchip Technology Inc.
-
-  @File Name
-    main.c
-
-  @Summary
-    This is the generated main.c using PIC24 / dsPIC33 / PIC32MM MCUs.
-
-  @Description
-    This source file provides main entry point for system initialization and application code development.
-    Generation Information :
-        Product Revision  :  PIC24 / dsPIC33 / PIC32MM MCUs - 1.171.4
-        Device            :  PIC24FJ64GA002
-    The generated drivers are tested against the following:
-        Compiler          :  XC16 v2.10
-        MPLAB 	          :  MPLAB X v6.05
-*/
-
-/*
-    (c) 2020 Microchip Technology Inc. and its subsidiaries. You may use this
-    software and any derivatives exclusively with Microchip products.
-
-    THIS SOFTWARE IS SUPPLIED BY MICROCHIP "AS IS". NO WARRANTIES, WHETHER
-    EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING ANY IMPLIED
-    WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, AND FITNESS FOR A
-    PARTICULAR PURPOSE, OR ITS INTERACTION WITH MICROCHIP PRODUCTS, COMBINATION
-    WITH ANY OTHER PRODUCTS, OR USE IN ANY APPLICATION.
-
-    IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY INDIRECT, SPECIAL, PUNITIVE,
-    INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE OF ANY KIND
-    WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF MICROCHIP HAS
-    BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE FORESEEABLE. TO THE
-    FULLEST EXTENT ALLOWED BY LAW, MICROCHIP'S TOTAL LIABILITY ON ALL CLAIMS IN
-    ANY WAY RELATED TO THIS SOFTWARE WILL NOT EXCEED THE AMOUNT OF FEES, IF ANY,
-    THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE.
-
-    MICROCHIP PROVIDES THIS SOFTWARE CONDITIONALLY UPON YOUR ACCEPTANCE OF THESE
-    TERMS.
-*/
-
-// ---------------------------------------------------------------------------------------------------------------------------------
 /*============================================================================================================================*/  
 /*
  * Bibliotecas e Macros
@@ -76,7 +31,7 @@ bool flag_mpu = false;
 bool flag_nrf = false;
 bool enviar_dados = false;     // Flag para enviar dados
 bool dados_recebidos = false;  // Flag para dados recebidos
-uint8_t receivedCommand = 0;  // Comando recebido pelo NRF24L01+
+int16_t receivedCommand = 0;  // Comando recebido pelo NRF24L01+
 int16_t accel[3], gyro[3], mag[3], temp;
 float temperatura = 0.0;       // Temperatura em ∞C
 float tensao_bateria = 0.0;    // Tens„o da bateria em V
@@ -96,7 +51,10 @@ int main(void)
    EX_INT1_InterruptEnable();
    EX_INT0_InterruptEnable();
    
+   SSNRF_SetHigh();
    MPU9250_Init();       // Inicializa o MPU9250
+   __delay_ms(20);
+   SSMPU_SetHigh();
    NRF24L01_Init();      // Inicializa o NRF24L01+
 
    LED_SetHigh();  
@@ -104,156 +62,126 @@ int main(void)
    NOUSE2_SetLow();
    NOUSE3_SetLow();
    NOUSE4_SetLow();
-   ENABLE_SetLow(); 
-
-   /*
-   //--Vari·veis de dados do MPU
+   ENABLE_SetLow();
    
-   uint8_t mpuAcelXH = 0x00;                                                                       // AcelerÙmetro Eixo X HIGH BYTE
-   uint8_t mpuAcelXL = 0x00;                                                                       // AcelerÙmetro Eixo X LOW BYTE
-   uint8_t mpuAcelYH = 0x00;                                                                       // AcelerÙmetro Eixo Y HIGH BYTE
-   uint8_t mpuAcelYL = 0x00;                                                                       // AcelerÙmetro Eixo Y LOW BYTE
-   uint8_t mpuAcelZH = 0x00;                                                                       // AcelerÙmetro Eixo Z HIGH BYTE
-   uint8_t mpuAcelZL = 0x00;                                                                       // AcelerÙmetro Eixo Z LOW BYTE
-   uint8_t mpuGiroXH = 0x00;                                                                       // GiroscÛpio   Eixo X HIGH BYTE
-   uint8_t mpuGiroXL = 0x00;                                                                       // GiroscÛpio   Eixo X LOW BYTE
-   uint8_t mpuGiroYH = 0x00;                                                                       // GiroscÛpio   Eixo Y HIGH BYTE
-   uint8_t mpuGiroYL = 0x00;                                                                       // GiroscÛpio   Eixo Y LOW BYTE
-   uint8_t mpuGiroZH = 0x00;                                                                       // GiroscÛpio   Eixo Z HIGH BYTE
-   uint8_t mpuGiroZL = 0x00;                                                                       // GiroscÛpio   Eixo Z LOW BYTE
-   uint8_t mpuTempH  = 0x00;                                                                       // Temperatura  MPU    HIGH BYTE
-   uint8_t mpuTempL  = 0x00;                                                                       // Temperatura  MPU    LOW BYTE  
-   uint8_t mpuMagXH  = 0x00;                                                                       // MagnetÙmetro Eixo X HIGH BYTE
-   uint8_t mpuMagXL  = 0x00;                                                                       // MagnetÙmetro Eixo X LOW BYTE
-   uint8_t mpuMagYH  = 0x00;                                                                       // MagnetÙmetro Eixo Y HIGH BYTE
-   uint8_t mpuMagYL  = 0x00;                                                                       // MagnetÙmetro Eixo Y LOW BYTE
-   uint8_t mpuMagZH  = 0x00;                                                                       // MagnetÙmetro Eixo Z HIGH BYTE
-   uint8_t mpuMagZL  = 0x00;                                                                       // MagnetÙmetro Eixo Z LOW BYTE  
+   int16_t txBuffer[30];
    
-   //--Vari·veis de dados do ADC
-    
-   uint16_t ntcTemp = 0x00;                                                                        // Temperatura NTC     saÌda do ADC
-   uint16_t batVolt = 0x00;                                                                        // Tens„o da Bateria   saÌda do ADC
-   uint16_t extX    = 0x00;                                                                        // ExtensÙmetro Eixo X saÌda do ADC
-   uint16_t extY    = 0x00;                                                                        // ExtensÙmetro Eixo Y saÌda do ADC
-   uint16_t extZ    = 0x00;                                                                        // ExtensÙmetro Eixo Z saÌda do ADC
-   
-   uint8_t ntcTempH = 0x00;                                                                        // Temperatura  NTC    HIGH BYTE
-   uint8_t ntcTempL = 0x00;                                                                        // Temperatura  NTC    LOW BYTE    
-   uint8_t batVoltH = 0x00;                                                                        // Tens„o da Bateria   HIGH BYTE
-   uint8_t batVoltL = 0x00;                                                                        // Tens„o da Bateria   LOW BYTE    
-   uint8_t extXH    = 0x00;                                                                        // ExtensÙmetro Eixo X HIGH BYTE
-   uint8_t extXL    = 0x00;                                                                        // ExtensÙmetro Eixo X LOW BYTE    
-   uint8_t extYH    = 0x00;                                                                        // ExtensÙmetro Eixo Y HIGH BYTE
-   uint8_t extYL    = 0x00;                                                                        // ExtensÙmetro Eixo Y LOW BYTE    
-   uint8_t extZH    = 0x00;                                                                        // ExtensÙmetro Eixo Z HIGH BYTE
-   uint8_t extZL    = 0x00;                                                                        // ExtensÙmetro Eixo Z LOW BYTE
-   
-   //--Vari·veis de envio/recebimento de dados;
-    
-   uint8_t txBuffer[30] = {0x00};                                                                  // Dados para envio pelo NRF24L01+
-         
-   float bateria = 0.0;                                                                            // Float para armazenar a tens„o da bateria
-   int bat_percentage = 50;
-   float temperatura_ntc = 0.0;
-   float vADC = 0.0;
-   float resistencia = 0.0;
-   
-   float temperatura_mpu = 0.0;
-   float aceleracao_x = 0.0;
-   float aceleracao_y = 0.0;
-   float aceleracao_z = 0.0;
-   float giro_x = 0.0;
-   float giro_y = 0.0;
-   float giro_z = 0.0;
-   float eletromag_x = 0.0;
-   float eletromag_y = 0.0;
-   float eletromag_z = 0.0;
-   */
-   
-   while(1){ 
-        LED_SetLow();  
-        TMR1_Start();
-        
-        // Verifica erros no MPU9250
-        if (MPU9250_CheckError()) 
-        {
-            error(2);
-        }
-
-        // Verifica erros no NRF24L01+
-        if (NRF24L01_CheckStatus() & 0x10) 
-        {
-            // Tratar erro de retransmiss„o do NRF24L01+
-            error(3);
-        }
-
-        // Envia dados se a flag estiver ativa
-        if (enviar_dados) 
-        {
-            enviar_dados = false;
-
-            // Prepara os dados para envio
-            uint8_t dadosADC[20];
-            memcpy(dadosADC, &temperatura, sizeof(float));
-            memcpy(dadosADC + 4, &tensao_bateria, sizeof(float));
-            memcpy(dadosADC + 8, &strain_gauge_x, sizeof(float));
-            memcpy(dadosADC + 12, &strain_gauge_y, sizeof(float));
-            memcpy(dadosADC + 16, &strain_gauge_z, sizeof(float));            
-            // Envia os dados via NRF24L01+
-            NRF24L01_SetTXMode();
-            NRF24L01_WritePayload(dadosADC, sizeof(dadosADC));
-            NRF24L01_StandbyMode();
+   while(1)
+   {
+      /*
+      // Chamada das interrup√ß√µes
+      
+      / *
+      if(interrupt_active(INT_EXT1)){
+         ext1_isr();
+      }
+      else if(interrupt_active(INT_EXT2)){
+         ext2_isr();
+      }
+      * /
+      
+      // Leitura dos dados de temperatura, tens√£o de bateria e deforma√ß√£o mec√¢nica do ADC e formata√ß√£o dos dados para 2 bytes (High e Low) para ficar no mesmo formato do restante dos sensores
+      
+      ntcTemp  = getADC(0);                                                                        // L√™ valor ADC da temperatura do NTC
+      ntcTempH = (uint8_t)(ntcTemp >> 8);                                                          // Transforma valor lido em 2 bytes
+      ntcTempL = (uint8_t)ntcTemp;
+      
+      batVolt  = getADC(1);                                                                        // L√™ valor ADC da tens√£o da bateria     
+      batVoltH = (uint8_t)(batVolt >> 8);                                                          // Transforma valor lido em 2 bytes
+      batVoltL = (uint8_t)batVolt;
+      
+      extX  = getADC(2);                                                                           // L√™ valor ADC do extens√¥metro eixo X
+      extXH = (uint8_t)(extX >> 8);                                                                // Transforma valor lido em 2 bytes
+      extXL = (uint8_t)extX;
+      
+      extY  = getADC(3);                                                                           // L√™ valor ADC do extens√¥metro eixo Y
+      extYH = (uint8_t)(extY >> 8);                                                                // Transforma valor lido em 2 bytes
+      extYL = (uint8_t)extY;
             
-            uint16_t dadosMPU[10]; // 3 (accel) + 3 (gyro) + 3 (mag) + 1 (temp) = 10 elements
-            memcpy(dadosMPU, accel, sizeof(accel)); // Copy accel array (3 elements)
-            memcpy(dadosMPU + 3, gyro, sizeof(gyro)); // Copy gyro array (3 elements)
-            memcpy(dadosMPU + 6, mag, sizeof(mag)); // Copy mag array (3 elements)
-            memcpy(dadosMPU + 9, &temp, sizeof(temp)); // Copy temp (1 element)
-            // Envia os dados via NRF24L01+
-            NRF24L01_SetTXMode();
-            NRF24L01_WritePayload((uint8_t*)dadosMPU, sizeof(dadosMPU));
-            NRF24L01_StandbyMode();
-        }
-
-        // Processa o comando recebido
-        if (dados_recebidos) 
-        {
-            dados_recebidos = false;
-
-            // Liga o LED se o comando for 1
-            if (receivedCommand == 1) 
-            {
-                enviar_dados = true;
-                LATAbits.LATA2 = 1;
-            }
-            // Desliga o LED se o comando for 2
-            else if (receivedCommand == 2) 
-            {
-                ;
-                    //TMR1 0; 
-                //    TMR1 = 0x00;
-                    //Period = 0.25 s; Frequency = 4000000 Hz; PR1 15625; 
-                //    PR1 = 0x3D09;
-                    //TCKPS 1:64; TON enabled; TSIDL disabled; TCS FOSC/2; TSYNC disabled; TGATE disabled; 
-                //    T1CON = 0x8030; // 0x8030 = 1000 0000 0011 0000 (TON=1, TCKPS=11)
-            }
-            // Se o comando for 0 n faz nada
-            else if (receivedCommand == 0) 
-            {
-                ;
-            }
-        }
-
-        // Entra em modo sleep se n„o houver atividade
-        if (!enviar_dados && !dados_recebidos) {
-            sleep_mode();
-        }
-       
-        //-----------------------------------DAKI PRA BAIXO NEM RELA!
+      extZ  = getADC(4);                                                                           // L√™ valor ADC do extens√¥metro eixo Z                                                                        // L√™ valor ADC da temperatura do NTC
+      extZH = (uint8_t)(extZ >> 8);                                                                // Transforma valor lido em 2 bytes
+      extZL = (uint8_t)extZ;
+      
+      // Manipula√ß√£o dos dados ADC
+      
+      bateria = (HVIN/1024) * (batVolt);
+      
+      if(bateria > (HVIN/2))
+      {
+         output_low(ENABLE);
+      }
+      else
+      {
+         output_high(ENABLE);
+      }
+      
+      // Leitura dos sensores do MPU9250
+      
+      mpu9250_read_temp(&mpuTempH, &mpuTempL);                                                     // Leitura de Temperatura
+      mpu9250_read_accel(&mpuAcelXH, &mpuAcelXL, &mpuAcelYH, &mpuAcelYL, &mpuAcelZH, &mpuAcelZL);  // Leitura do Aceler√¥meto
+      mpu9250_read_gyro(&mpuGiroXH, &mpuGiroXL, &mpuGiroYH, &mpuGiroYL, &mpuGiroZH, &mpuGiroZL);   // Leitura do Girosc√≥pio
+      //mpu9250_read_mag(&mpuMagXH, &mpuMagXL, &mpuMagYH, &mpuMagYL, &mpuMagZH, &mpuMagZL);          // Leitura do Magnet√¥metro
+      
+      // Manipula√ß√£O dos dados lidos do MPU9250
+      
+      internTemp = ((float)((int16_t)((mpuTempH << 8) | mpuTempL)) / 333.87f) + 21.0f;
+      */  
+      // Testes de SPI
+      
+      SSMPU_SetHigh();
+      NRF24L01_WriteRegister(0xDC, 0xBA);
+      SSNRF_SetHigh();
+      MPU9250_WriteRegister(0xDA, 0xD0);
+      
+      SSMPU_SetHigh();
+      SSNRF_SetHigh();
+      
+      LATB = 0x0810;
+      // Testes de output 
+      
+      LED_SetHigh();
+      __delay_ms(200);  
+      LED_SetLow();
+      __delay_ms(200);   
+      
+      //Envia os dados do MPU9250 e do ADC pelo NRF24L01+
+      txBuffer[0]  = 0x00; // mpuAcelXH;
+      txBuffer[1]  = 0x01; // mpuAcelXL;
+      txBuffer[2]  = 0x02; // mpuAcelYH;
+      txBuffer[3]  = 0x03; // mpuAcelYL;
+      txBuffer[4]  = 0x04; // mpuAcelZH;
+      txBuffer[5]  = 0x05; // mpuAcelZL;
+      txBuffer[6]  = 0x06; // mpuGiroXH;
+      txBuffer[7]  = 0x07; // mpuGiroXL;
+      txBuffer[8]  = 0x08; // mpuGiroYH;
+      txBuffer[9]  = 0x09; // mpuGiroYL;
+      txBuffer[10] = 0x0A; // mpuGiroZH;
+      txBuffer[11] = 0x0B; // mpuGiroZL;
+      txBuffer[12] = 0x0C; // mpuMagXH;
+      txBuffer[13] = 0x0D; // mpuMagXL;
+      txBuffer[14] = 0x0E; // mpuMagYH;
+      txBuffer[15] = 0x0F; // mpuMagYL;
+      txBuffer[16] = 0x10; // mpuMagZH;
+      txBuffer[17] = 0x11; // mpuMagZL;
+      txBuffer[18] = 0x12; // mpuTempH;
+      txBuffer[19] = 0x13; // mpuTempL;
+      
+      txBuffer[20] = 0x14; // ntcTempH;
+      txBuffer[21] = 0x15; // ntcTempL;
+      txBuffer[22] = 0x16; // batVoltH;
+      txBuffer[23] = 0x17; // batVoltL;
+      txBuffer[24] = 0x18; // extXH;
+      txBuffer[25] = 0x19; // extXL;
+      txBuffer[26] = 0x1A; // extYH;
+      txBuffer[27] = 0x1B; // extYL;
+      txBuffer[28] = 0x1C; // extZH;
+      txBuffer[29] = 0x1D; // extZL;
+      
+      //NRF24L01_WritePayload(txBuffer, 30);
+      
+      //-----------------------------------DAKI PRA BAIXO NEM RELA!
                
         if(flag_nrf){
-            
             flag_nrf = 0;       
         } 
         if(flag_mpu){
@@ -263,10 +191,10 @@ int main(void)
             flag_timer = 0;
             TMR1_Start();       
         }
-        
-        sleep_mode();
+
+        //sleep_mode();
     }
-   return 1;
+return 1;
 } // END MAIN
 
 /*============================================================================================================================*/
@@ -292,10 +220,16 @@ uint16_t getADC(int sensor)
    return conversion;                                                                              // return conversion result
     
    */
+    
+    ENABLE_SetHigh();
+    __delay_ms(50);
     AD1CHSbits.CH0SA = sensor; // Seleciona o canal
     AD1CON1bits.SAMP = 1;       // Inicia a amostragem
     while (!AD1CON1bits.DONE);  // Aguarda a convers„o
+    __delay_ms(50);
+    ENABLE_SetLow();
     return ADC1BUF0;            // Retorna o valor convertido
+    
 } /* end getADC */
 
 /*============================================================================================================================*/
@@ -380,7 +314,7 @@ int porcentagem_bateria(float bateria)
 }
 
 // FunÁ„o para expÙr ao usu·rio caso ocorra um erro
-void error(int erro)
+void error(int16_t erro)
 {   
     int i = 0;
     switch (erro)
@@ -417,7 +351,7 @@ void error(int erro)
             //-----------------------------------FAZER!! - n„o conectado ao outro nrf  
             break;
         case 4:
-            NRF24L01_ReadPayload(erro, 1);
+            NRF24L01_ReadPayload(&erro, 1);
             while(1){
                 LED_Toggle();
                 __delay_ms(2000);        
@@ -438,3 +372,71 @@ void error(int erro)
         i++;
     }
 } /* end error */
+
+uint16_t spi_xfer(uint16_t mensagem)
+{
+    uint16_t mensagemLida = 0;
+    mensagemLida = SPI1_Exchange16bit(mensagem);
+    return mensagemLida;
+}
+/*
+// Fun√ß√£o de leitura das portas ADC
+uint16_t getADC(int sensor)
+{   
+   / *sensor = 0 => TEMPERATURA
+     sensor = 1 => BATERIA
+     sensor = 2 => SG X
+     sensor = 3 => SG Y
+     sensor = 4 => SG Z
+   * /
+   
+   uint16_t conversion = 0;
+   
+   output_high(ENABLE);
+   __delay_us(100);   
+   switch(sensor){
+     case 0:
+         set_adc_channel(TEMPSENS);
+         __delay_us(10);   
+         //while(!adc_done());   
+         conversion = read_adc();
+         break;
+         
+     case 1:
+         set_adc_channel(SBAT);
+         __delay_us(10);   
+         //while(!adc_done());   
+         conversion = read_adc();
+         break;
+         
+     case 2:
+         set_adc_channel(SGX);
+         __delay_us(10);   
+         //while(!adc_done());   
+         conversion = read_adc();
+         break;
+         
+     case 3:
+         set_adc_channel(SGY);
+         __delay_us(10);   
+         //while(!adc_done());   
+         conversion = read_adc();
+         break;
+         
+     case 4:
+         set_adc_channel(SGZ);
+         __delay_us(10);   
+         //while(!adc_done());   
+         conversion = read_adc();
+         break;
+         
+     default:
+         conversion = 0;
+         break;       
+   }
+   
+   delay_us(100);   
+   output_low(ENABLE);
+   return conversion;                                                                              // return conversion result
+} / * end getADC * /
+*/

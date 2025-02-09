@@ -60,7 +60,7 @@ extern bool flag_mpu;            // Flag interrupção mpu
 extern bool flag_nrf;            // Flag interrupção nrf
 extern bool enviar_dados;        // Flag para enviar dados
 extern bool dados_recebidos;     // Flag para dados recebidos   
-extern uint8_t receivedCommand;  // Comando recebido pelo NRF24L01+
+extern int16_t receivedCommand;  // Comando recebido pelo NRF24L01+
 extern int16_t accel[3], gyro[3], mag[3], temp;
 //***User Area End->code: Add External Interrupt handler specific headers
 
@@ -76,7 +76,7 @@ extern int16_t accel[3], gyro[3], mag[3], temp;
 
     uint8_t status = NRF24L01_CheckStatus();
     if (status & 0x40) {
-        // TX FIFO vazio
+        ;// TX FIFO vazio
     }
     if (status & 0x20) {
         // Payload recebido

@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include "defines.h"  // Inclui o arquivo defines.h
 
-// Protótipos das funções
+// Protótipos das funções  AS DESCRIÇÕES NÃO ESTÃO ATUALIZADAS!
 void NRF24L01_Init(void);
 /**
     <p><b>Protótipo da função:</b></p>
@@ -91,7 +91,7 @@ uint8_t NRF24L01_ReadRegister(uint8_t reg);
     <p><b>Observações:</b></p>
     O endereço do registrador deve ser válido conforme o datasheet do NRF24L01+.
 */
-void NRF24L01_WritePayload(uint8_t *data, uint8_t length);
+void NRF24L01_WritePayload(int16_t *data, uint8_t length);
 /**
     <p><b>Protótipo da função:</b></p>
     void NRF24L01_WritePayload(uint8_t *data, uint8_t length);
@@ -121,7 +121,7 @@ void NRF24L01_WritePayload(uint8_t *data, uint8_t length);
     <p><b>Observações:</b></p>
     O tamanho do payload deve ser compatível com a configuração do NRF24L01+.
 */
-void NRF24L01_ReadPayload(uint8_t *data, uint8_t length);
+void NRF24L01_ReadPayload(int16_t *data, uint8_t length);
 /**
     <p><b>Protótipo da função:</b></p>
     void NRF24L01_ReadPayload(uint8_t *data, uint8_t length);
@@ -349,7 +349,7 @@ uint8_t NRF24L01_CheckStatus(void);
     <p><b>Observações:</b></p>
     O registrador de status deve ser interpretado conforme o datasheet do NRF24L01+.
 */
-void NRF24L01_FlushTX(void);
+void NRF24L01_flush_tx(void);
 /**
     <p><b>Protótipo da função:</b></p>
     void NRF24L01_FlushTX(void);
@@ -377,7 +377,7 @@ void NRF24L01_FlushTX(void);
     <p><b>Observações:</b></p>
     Esta função deve ser usada para descartar dados antigos antes de enviar novos.
 */
-void NRF24L01_FlushRX(void);
+void NRF24L01_flush_rx(void);
 /**
     <p><b>Protótipo da função:</b></p>
     void NRF24L01_FlushRX(void);
@@ -433,6 +433,12 @@ void NRF24L01_ClearInterrupts(void);
     <p><b>Observações:</b></p>
     Esta função deve ser chamada após o tratamento de uma interrupção.
 */
+void nrf24l01_nop(void);
+void NRF24L01_reuse_tx(void);
+void NRF24L01_pulse(void);
+uint8_t NRF24L01_read_rx_width(void);
+void NRF24L01_write_ack(uint8_t pipe, uint8_t *data, uint8_t len);
+void NRF24L01_write_tx_no_ack(uint8_t *data, uint8_t len);
 
 /*
 void __attribute__((interrupt, no_auto_psv)) _INT2Interrupt(void);

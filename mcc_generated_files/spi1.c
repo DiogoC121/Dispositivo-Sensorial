@@ -64,12 +64,22 @@ uint16_t SPI1_ExchangeBuffer(uint8_t *pTransmitData, uint16_t byteCount, uint8_t
 
 void SPI1_Initialize (void)
 {
-    // MSTEN Master; DISSDO disabled; PPRE 64:1; SPRE 8:1; MODE16 enabled; SMP Middle; DISSCK disabled; CKP Idle:Low, Active:High; CKE Idle to Active; 
-    SPI1CON1 = 0x420;
+    // MSTEN Master; DISSDO disabled; PPRE 1:1; SPRE 2:1; MODE16 enabled; SMP Middle; DISSCK disabled; CKP Idle:Low, Active:High; CKE Idle to Active; 
+    SPI1CON1 = 0x43B;
     // SPIBEN enabled; SPIFPOL disabled; SPIFE disabled; 
     SPI1CON2 = 0x01;
     // SPITBF disabled; SISEL SPI_INT_SPIRBF; SPIRBF disabled; SPIROV disabled; SPIEN enabled; SRXMPT disabled; SRMPT disabled; SPISIDL disabled; SPIBEC disabled; 
     SPI1STAT = 0x800C;
+    
+        // Configuração do SPI1
+    //SPI1CON1bits.MSTEN = 1;        // Modo Master
+    //SPI1CON1bits.CKP = 0;          // Clock idle em low
+    //SPI1CON1bits.CKE = 1;          // Transição de clock ativa na borda de subida
+    //SPI1CON1bits.SMP = 0;          // Dados amostrados no meio do tempo de clock
+    //SPI1CON1bits.MODE16 = 0;       // Modo 16-bit
+    //SPI1CON1bits.PPRE = 3;         // Prescaler primário 1:1
+    //SPI1CON1bits.SPRE = 6;         // Prescaler secundário 2:1
+    //SPI1STATbits.SPIEN = 1;        // Habilitar SPI1
 }
 void SPI1_Exchange( uint8_t *pTransmitData, uint8_t *pReceiveData )
 {

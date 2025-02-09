@@ -292,7 +292,7 @@
  * Bits auxiliares para o  NRF24L01+
  */ 
   
-#define ADDRESS                     0x52A0C1711E //"node3"
+#define ADDRESS                     0x5252E1AB12 //"node3"
 /*
 #define ENDTX                       0x0009D10830
                                  // 0x3008D10900
@@ -305,13 +305,14 @@
  * Protótipo das funções
  */
 
+uint16_t spi_xfer(uint16_t mensagem);
 uint16_t getADC(int sensor);
 void sleep_mode();
 void wake_up();
 void tipo_interrupt(int i);
 float NTC_To_Temperature(uint16_t adc_value); 
 int porcentagem_bateria(float bateria);
-void error(int erro);
+void error(int16_t erro);
 
 /*============================================================================================================================*/
 /*
@@ -324,7 +325,7 @@ extern bool flag_mpu;               // Flag interrupção mpu
 extern bool flag_nrf;               // Flag interrupção nrf
 extern bool enviar_dados;           // Flag para enviar dados
 extern bool dados_recebidos;        // Flag para dados recebidos   
-extern uint8_t receivedCommand;     // Comando recebido pelo NRF24L01+
+extern int16_t receivedCommand;     // Comando recebido pelo NRF24L01+
 extern int16_t accel[3], gyro[3], mag[3], temp; //variáveis mpu
 extern float temperatura;           // Temperatura em °C
 extern float tensao_bateria;        // Tensão da bateria em V
