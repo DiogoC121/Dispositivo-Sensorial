@@ -393,11 +393,19 @@ void error(int16_t erro)
     }
 } /* end error */
 
-uint16_t spi_xfer(uint16_t mensagem)
-{
-    uint16_t mensagemLida = 0;
-    mensagemLida = SPI1_Exchange16bit(mensagem);
-    return mensagemLida;
+
+uint16_t spi_xfer(uint16_t mensagem) {
+    // Esperar até que o buffer de transmissão esteja vazio
+    while (SPI1STATbits.SPITBF);
+
+    // Escrever os dados no buffer de transmissão
+    SPI1BUF = mensagem;
+
+    // Esperar até que o buffer de recepção esteja cheio
+    while (!SPI1STATbits.SPIRBF);
+
+    // Ler os dados do buffer de recepção
+    return SPI1BUF;
 }
 /*
 // FunÃ§Ã£o de leitura das portas ADC
