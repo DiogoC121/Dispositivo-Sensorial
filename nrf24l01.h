@@ -1,6 +1,12 @@
 #ifndef NRF24L01_H
 #define NRF24L01_H
 
+/*
+ * Arquivo.h para utilização dos módulos NRF24L01+
+ * Autor: Diogo Correia da Silva
+ 
+ */
+
 #include <xc.h>
 #include <stdint.h>
 #include "defines.h"  // Inclui o arquivo defines.h
@@ -434,11 +440,290 @@ void NRF24L01_ClearInterrupts(void);
     Esta função deve ser chamada após o tratamento de uma interrupção.
 */
 void nrf24l01_nop(void);
+/**
+    <p><b>Protótipo da função:</b></p>
+    void nrf24l01_nop(void);
+  
+    <p><b>Resumo:</b></p>
+    Executa uma operação NOP (No Operation) no NRF24L01+.
+
+    <p><b>Descrição:</b></p>
+    Esta função envia um comando NOP ao módulo NRF24L01+, que não realiza nenhuma operação, mas pode ser usada para ler o registrador de status.
+
+    <p><b>Pré-condição:</b></p>
+    A função NRF24L01_Init deve ter sido chamada para configurar a interface SPI.
+
+    <p><b>Parâmetros:</b></p>
+    Nenhum.
+
+    <p><b>Retorna:</b></p>
+    Nada.
+
+    <p><b>Exemplo:</b></p>
+    <code>
+    nrf24l01_nop(); // Executa uma operação NOP
+    </code>
+
+    <p><b>Observações:</b></p>
+    O comando NOP é útil para ler o registrador de status sem alterar o estado do módulo.
+*/
 void NRF24L01_reuse_tx(void);
+/**
+    <p><b>Protótipo da função:</b></p>
+    void NRF24L01_reuse_tx(void);
+  
+    <p><b>Resumo:</b></p>
+    Reutiliza o último payload transmitido no NRF24L01+.
+
+    <p><b>Descrição:</b></p>
+    Esta função permite reutilizar o último payload transmitido, sem a necessidade de reescrevê-lo na FIFO de transmissão.
+
+    <p><b>Pré-condição:</b></p>
+    A função NRF24L01_Init deve ter sido chamada para configurar a interface SPI.
+
+    <p><b>Parâmetros:</b></p>
+    Nenhum.
+
+    <p><b>Retorna:</b></p>
+    Nada.
+
+    <p><b>Exemplo:</b></p>
+    <code>
+    NRF24L01_reuse_tx(); // Reutiliza o último payload transmitido
+    </code>
+
+    <p><b>Observações:</b></p>
+    Esta função é útil para retransmissões rápidas do mesmo payload.
+*/
 void NRF24L01_pulse(void);
+/**
+    <p><b>Protótipo da função:</b></p>
+    void NRF24L01_pulse(void);
+  
+    <p><b>Resumo:</b></p>
+    Gera um pulso no pino CE do NRF24L01+.
+
+    <p><b>Descrição:</b></p>
+    Esta função gera um pulso alto no pino CE do módulo NRF24L01+, necessário para iniciar a transmissão ou recepção de dados.
+
+    <p><b>Pré-condição:</b></p>
+    A função NRF24L01_Init deve ter sido chamada para configurar a interface SPI.
+
+    <p><b>Parâmetros:</b></p>
+    Nenhum.
+
+    <p><b>Retorna:</b></p>
+    Nada.
+
+    <p><b>Exemplo:</b></p>
+    <code>
+    NRF24L01_pulse(); // Gera um pulso no pino CE
+    </code>
+
+    <p><b>Observações:</b></p>
+    O pulso no pino CE é essencial para iniciar a comunicação no modo TX ou RX.
+*/
 uint8_t NRF24L01_read_rx_width(void);
+/**
+    <p><b>Protótipo da função:</b></p>
+    uint8_t NRF24L01_read_rx_width(void);
+  
+    <p><b>Resumo:</b></p>
+    Lê o tamanho do payload recebido no NRF24L01+.
+
+    <p><b>Descrição:</b></p>
+    Esta função lê o tamanho do payload recebido na FIFO de recepção do módulo NRF24L01+.
+
+    <p><b>Pré-condição:</b></p>
+    A função NRF24L01_Init deve ter sido chamada para configurar a interface SPI.
+
+    <p><b>Parâmetros:</b></p>
+    Nenhum.
+
+    <p><b>Retorna:</b></p>
+    O tamanho do payload recebido (em bytes).
+
+    <p><b>Exemplo:</b></p>
+    <code>
+    uint8_t payloadSize = NRF24L01_read_rx_width(); // Lê o tamanho do payload recebido
+    </code>
+
+    <p><b>Observações:</b></p>
+    O tamanho do payload deve ser compatível com a configuração do módulo.
+*/
 void NRF24L01_write_ack(uint8_t pipe, uint8_t *data, uint8_t len);
+/**
+    <p><b>Protótipo da função:</b></p>
+    void NRF24L01_write_ack(uint8_t pipe, uint8_t *data, uint8_t len);
+  
+    <p><b>Resumo:</b></p>
+    Escreve um payload de ACK no NRF24L01+.
+
+    <p><b>Descrição:</b></p>
+    Esta função escreve um payload de ACK no pipe especificado do módulo NRF24L01+, que será enviado automaticamente como resposta a um pacote recebido.
+
+    <p><b>Pré-condição:</b></p>
+    A função NRF24L01_Init deve ter sido chamada para configurar a interface SPI.
+
+    <p><b>Parâmetros:</b></p>
+    - pipe: Pipe no qual o payload de ACK será escrito (0 a 5).
+    - data: Ponteiro para os dados a serem enviados como ACK.
+    - len: Tamanho do payload de ACK (1 a 32 bytes).
+
+    <p><b>Retorna:</b></p>
+    Nada.
+
+    <p><b>Exemplo:</b></p>
+    <code>
+    uint8_t ackData[] = {0x01, 0x02, 0x03};
+    NRF24L01_write_ack(0, ackData, 3); // Escreve um payload de ACK no pipe 0
+    </code>
+
+    <p><b>Observações:</b></p>
+    O payload de ACK é enviado automaticamente após a recepção de um pacote no pipe especificado.
+*/
 void NRF24L01_write_tx_no_ack(uint8_t *data, uint8_t len);
+/**
+    <p><b>Protótipo da função:</b></p>
+    void NRF24L01_write_tx_no_ack(uint8_t *data, uint8_t len);
+  
+    <p><b>Resumo:</b></p>
+    Escreve um payload no NRF24L01+ sem esperar por ACK.
+
+    <p><b>Descrição:</b></p>
+    Esta função escreve um payload na FIFO de transmissão do módulo NRF24L01+ sem esperar por uma confirmação (ACK) do receptor.
+
+    <p><b>Pré-condição:</b></p>
+    A função NRF24L01_Init deve ter sido chamada para configurar a interface SPI.
+
+    <p><b>Parâmetros:</b></p>
+    - data: Ponteiro para os dados a serem transmitidos.
+    - len: Tamanho do payload (1 a 32 bytes).
+
+    <p><b>Retorna:</b></p>
+    Nada.
+
+    <p><b>Exemplo:</b></p>
+    <code>
+    uint8_t payload[] = {0x01, 0x02, 0x03};
+    NRF24L01_write_tx_no_ack(payload, 3); // Transmite um payload sem esperar por ACK
+    </code>
+
+    <p><b>Observações:</b></p>
+    Esta função é útil para transmissões rápidas onde a confirmação não é necessária.
+*/
+void NRF24L01_SetRFChannel(uint8_t channel);
+/**
+    <p><b>Protótipo da função:</b></p>
+    void NRF24L01_SetRFChannel(uint8_t channel);
+  
+    <p><b>Resumo:</b></p>
+    Configura o canal RF do NRF24L01+.
+
+    <p><b>Descrição:</b></p>
+    Esta função define o canal de frequência RF no qual o NRF24L01+ irá operar. O canal pode variar de 0 a 125, correspondendo a frequências de 2.400 GHz a 2.525 GHz.
+
+    <p><b>Pré-condição:</b></p>
+    A função NRF24L01_Init deve ter sido chamada para configurar a interface SPI.
+
+    <p><b>Parâmetros:</b></p>
+    - channel: Canal RF a ser configurado (0 a 125).
+
+    <p><b>Retorna:</b></p>
+    Nada.
+
+    <p><b>Exemplo:</b></p>
+    <code>
+    NRF24L01_SetRFChannel(76); // Configura o canal RF para 76 (2.476 GHz)
+    </code>
+
+    <p><b>Observações:</b></p>
+    O canal deve estar dentro do intervalo permitido (0 a 125). Caso contrário, será ajustado para o valor máximo (125).
+*/
+void NRF24L01_SetDataRate(uint8_t dataRate);
+/**
+    <p><b>Protótipo da função:</b></p>
+    void NRF24L01_SetDataRate(uint8_t dataRate);
+  
+    <p><b>Resumo:</b></p>
+    Configura a taxa de dados do NRF24L01+.
+
+    <p><b>Descrição:</b></p>
+    Esta função define a taxa de transmissão de dados do NRF24L01+. As opções são 250 kbps, 1 Mbps (padrão) ou 2 Mbps.
+
+    <p><b>Pré-condição:</b></p>
+    A função NRF24L01_Init deve ter sido chamada para configurar a interface SPI.
+
+    <p><b>Parâmetros:</b></p>
+    - dataRate: Taxa de dados desejada (250, 1000 ou 2000 kbps).
+
+    <p><b>Retorna:</b></p>
+    Nada.
+
+    <p><b>Exemplo:</b></p>
+    <code>
+    NRF24L01_SetDataRate(2000); // Configura a taxa de dados para 2 Mbps
+    </code>
+
+    <p><b>Observações:</b></p>
+    A taxa de dados afeta o alcance e a robustez da comunicação. Taxas mais baixas (250 kbps) proporcionam maior alcance, enquanto taxas mais altas (2 Mbps) permitem maior velocidade de transmissão.
+*/
+void NRF24L01_SetTXPower(uint8_t power);
+/**
+    <p><b>Protótipo da função:</b></p>
+    void NRF24L01_SetTXPower(uint8_t power);
+  
+    <p><b>Resumo:</b></p>
+    Configura a potência de transmissão do NRF24L01+.
+
+    <p><b>Descrição:</b></p>
+    Esta função define a potência de transmissão do NRF24L01+. As opções são 0 dBm (máxima potência), -6 dBm, -12 dBm ou -18 dBm (mínima potência).
+
+    <p><b>Pré-condição:</b></p>
+    A função NRF24L01_Init deve ter sido chamada para configurar a interface SPI.
+
+    <p><b>Parâmetros:</b></p>
+    - power: Potência de transmissão desejada (0, 1, 2 ou 3, correspondendo a 0 dBm, -6 dBm, -12 dBm e -18 dBm, respectivamente).
+
+    <p><b>Retorna:</b></p>
+    Nada.
+
+    <p><b>Exemplo:</b></p>
+    <code>
+    NRF24L01_SetTXPower(0); // Configura a potência de transmissão para 0 dBm
+    </code>
+
+    <p><b>Observações:</b></p>
+    A potência de transmissão afeta o consumo de energia e o alcance da comunicação. Potências mais altas aumentam o alcance, mas também o consumo de energia.
+*/
+uint8_t NRF24L01_ReadRSSI(void);
+/**
+    <p><b>Protótipo da função:</b></p>
+    uint8_t NRF24L01_ReadRSSI(void);
+  
+    <p><b>Resumo:</b></p>
+    Lê o valor de RSSI (Received Signal Strength Indicator) do NRF24L01+.
+
+    <p><b>Descrição:</b></p>
+    Esta função lê o valor de RSSI, que indica a força do sinal recebido pelo módulo NRF24L01+.
+
+    <p><b>Pré-condição:</b></p>
+    A função NRF24L01_Init deve ter sido chamada para configurar a interface SPI.
+
+    <p><b>Parâmetros:</b></p>
+    Nenhum.
+
+    <p><b>Retorna:</b></p>
+    O valor de RSSI lido.
+
+    <p><b>Exemplo:</b></p>
+    <code>
+    uint8_t rssi = NRF24L01_ReadRSSI(); // Lê o valor de RSSI
+    </code>
+
+    <p><b>Observações:</b></p>
+    O valor de RSSI pode ser usado para avaliar a qualidade do sinal recebido. Valores mais altos indicam um sinal mais forte.
+*/
 
 /*
 void __attribute__((interrupt, no_auto_psv)) _INT2Interrupt(void);
