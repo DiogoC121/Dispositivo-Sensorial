@@ -1,6 +1,7 @@
 /*============================================================================================================================*/  
 /*
  * Bibliotecas e Macros
+ *
  */ 
 
 //#include <main.h>
@@ -39,6 +40,7 @@ float strain_gauge_x = 0.0;    // Leitura do strain gauge X
 float strain_gauge_y = 0.0;    // Leitura do strain gauge Y
 float strain_gauge_z = 0.0;    // Leitura do strain gauge Z
 
+const uint8_t addressnrf[5] = "00001";
 /*============================================================================================================================
 
  * Função Principal
@@ -55,7 +57,10 @@ int main(void)
    MPU9250_Init();       // Inicializa o MPU9250
    __delay_ms(20);
    SSMPU_SetHigh();
-   NRF24L01_Init();      // Inicializa o NRF24L01+
+   NRF24L01_Init();      // Inicializa o NRF24L01+uint8_t address[5] = {0x52, 0xA0, 0xC1, 0x71, 0x1E}; // Endereço "node3"
+   NRF24L01_SetAddress(addressnrf, 5);
+   __delay_ms(20);
+
 
    LED_SetHigh();  
    NOUSE1_SetLow();
@@ -65,6 +70,7 @@ int main(void)
    ENABLE_SetLow();
    
    int16_t txBuffer[30];
+   int16_t rxBuffer;
    
    while(1)
    {
@@ -127,6 +133,19 @@ int main(void)
       internTemp = ((float)((int16_t)((mpuTempH << 8) | mpuTempL)) / 333.87f) + 21.0f;
       */  
       // Testes de SPI
+       
+      uint8_t status = NRF24L01_CheckStatus();
+      if (status & 0x20) {
+          dados_recebidos = true;               // Payload recebido (se estiver no modo RX)
+      }
+      if (status & 0x10) {
+          error(3);                             // Máximo de retransmissões atingido
+      }
+      
+      if(dados_recebidos == true){
+          NRF24L01_ReadPayload(&rxBuffer, 1);
+          receivedCommand = rxBuffer;
+      }
       
       SSMPU_SetHigh();
       NRF24L01_WriteRegister(0xDC, 0xBA);
@@ -193,6 +212,7 @@ int main(void)
         }
 
         //sleep_mode();
+        dados_recebidos = false;
     }
 return 1;
 } // END MAIN
@@ -373,11 +393,19 @@ void error(int16_t erro)
     }
 } /* end error */
 
-uint16_t spi_xfer(uint16_t mensagem)
-{
-    uint16_t mensagemLida = 0;
-    mensagemLida = SPI1_Exchange16bit(mensagem);
-    return mensagemLida;
+
+uint16_t spi_xfer(uint16_t mensagem) {
+    // Esperar até que o buffer de transmissão esteja vazio
+    while (SPI1STATbits.SPITBF);
+
+    // Escrever os dados no buffer de transmissão
+    SPI1BUF = mensagem;
+
+    // Esperar até que o buffer de recepção esteja cheio
+    while (!SPI1STATbits.SPIRBF);
+
+    // Ler os dados do buffer de recepção
+    return SPI1BUF;
 }
 /*
 // FunÃ§Ã£o de leitura das portas ADC

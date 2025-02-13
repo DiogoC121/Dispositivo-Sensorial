@@ -1,12 +1,17 @@
+/*
+ * Arquivo.c para utilização dos módulos NRF24L01+
+ * Autor: Diogo Correia da Silva
+ 
+ */
 #include "nrf24l01.h"
 
 // Variáveis globais
 extern bool flag_timer;             // Flag interrupção timer
-extern bool flag_mpu;               // Flag interrupção mpu
 extern bool flag_nrf;               // Flag interrupção nrf
 extern bool enviar_dados;           // Flag para enviar dados
 extern bool dados_recebidos;        // Flag para dados recebidos   
 extern int16_t receivedCommand;     // Comando recebido pelo NRF24L01+
+//extern const uint8_t addressnrf[5];
 
 // Função para inicializar o NRF24L01+
 void NRF24L01_Init(void) {
@@ -16,7 +21,7 @@ void NRF24L01_Init(void) {
     NRF24L01_WriteRegister(NRF_EN_AA, 0x00);   // Desabilitar Auto Acknowledgment
     NRF24L01_WriteRegister(NRF_EN_RXADDR, 0x01); // Habilitar apenas o pipe 0
     NRF24L01_WriteRegister(NRF_SETUP_AW, 0x03);  // Endereço de 5 bytes
-    NRF24L01_WriteRegister(NRF_SETUP_RETR, 0x00); // Desabilitar retransmissão
+    NRF24L01_WriteRegister(NRF_SETUP_RETR, 0x00); // Desabilitar retransmissão ----------------------------------------------
     NRF24L01_WriteRegister(NRF_RF_CH, 0x02);    // Canal RF 2
     NRF24L01_WriteRegister(NRF_RF_SETUP, 0x07); // Potência máxima (0 dBm), taxa de 1 Mbps
     NRF24L01_WriteRegister(NRF_STATUS, 0x70);   // Limpar flags de status
@@ -28,7 +33,9 @@ void NRF24L01_Init(void) {
 
 // Função para escrever em um registrador do NRF24L01+
 void NRF24L01_WriteRegister(uint8_t reg, uint8_t data) {
-   CENRF_SetLow();
+    
+   CENRF_SetLow();                                                                       // Set CSN low to enable the chip select
+   
    uint32_t send = 0x00000000;
   
    //uint8_t datis = data;
@@ -36,8 +43,8 @@ void NRF24L01_WriteRegister(uint8_t reg, uint8_t data) {
    send = (send | data);
   
    SSMPU_SetHigh();
-   SSNRF_SetLow();                                                                              // Set CSN low to enable the chip select
-  
+   SSNRF_SetHigh();    
+
    spi_xfer (send);                                                                     // Send the register address with the data to write in the register
    while (!SPI1STATbits.SPIRBF);  // Esperar o buffer de recepção estar cheio
 
@@ -65,6 +72,7 @@ uint8_t NRF24L01_ReadRegister(uint8_t reg) {
 
    return received;
 }
+
 
 // Função para escrever um payload no NRF24L01+
 void NRF24L01_WritePayload(int16_t *data, uint8_t length) {
@@ -98,6 +106,7 @@ void NRF24L01_WritePayload(int16_t *data, uint8_t length) {
 void NRF24L01_ReadPayload(int16_t *data, uint8_t length) {
     LED_SetHigh();
     NRF24L01_SetRXMode();  // Ativar modo RX
+    NRF24L01_flush_rx();
     SSNRF_SetLow();                                                                              // Set CSN low to enable the chip select
 
     spi_xfer (NRF_R_RX_PAYLOAD);
@@ -145,7 +154,8 @@ void NRF24L01_SetRXMode(void) {
     uint8_t config = NRF24L01_ReadRegister(NRF_CONFIG);
     config |= 0x01;  // Setar bit PRIM_RX para modo RX
     NRF24L01_WriteRegister(NRF_CONFIG, config);
-    LATBbits.LATB12 = 1;  // Habilitar o NRF24L01+ (CE alto)
+   
+   CENRF_SetHigh();
 }
 
 // Função para colocar o NRF24L01+ em modo de espera
@@ -303,6 +313,39 @@ void NRF24L01_write_tx_no_ack(uint8_t *data, uint8_t len)
    
    SSNRF_SetHigh();
 } /* end nrf24l01_write_tx_no_ack */
+
+// Função para configurar o canal RF
+void NRF24L01_SetRFChannel(uint8_t channel) {
+    if (channel > 125) channel = 125; // O canal deve estar entre 0 e 125
+    NRF24L01_WriteRegister(NRF_RF_CH, channel);
+}
+
+// Função para configurar a taxa de dados
+void NRF24L01_SetDataRate(uint8_t dataRate) {
+    uint8_t rfSetup = NRF24L01_ReadRegister(NRF_RF_SETUP);
+    rfSetup &= ~0x28; // Limpa os bits de taxa de dados
+    if (dataRate == 250) {
+        rfSetup |= 0x20; // 250 kbps
+    } else if (dataRate == 2000) {
+        rfSetup |= 0x08; // 2 Mbps
+    } else {
+        rfSetup |= 0x00; // 1 Mbps (default)
+    }
+    NRF24L01_WriteRegister(NRF_RF_SETUP, rfSetup);
+}
+
+// Função para configurar a potência de transmissão
+void NRF24L01_SetTXPower(uint8_t power) {
+    uint8_t rfSetup = NRF24L01_ReadRegister(NRF_RF_SETUP);
+    rfSetup &= ~0x06; // Limpa os bits de potência
+    rfSetup |= (power << 1); // Configura a potência
+    NRF24L01_WriteRegister(NRF_RF_SETUP, rfSetup);
+}
+
+// Função para ler o valor de RSSI
+uint8_t NRF24L01_ReadRSSI(void) {
+    return NRF24L01_ReadRegister(NRF_RPD); // Supondo que o registrador de RSSI seja NRF_RPD
+}
 
 /*
 // Função de interrupção externa para o pino IRQNRF
