@@ -3,12 +3,14 @@
     <type>com.microchip.mplab.nbide.embedded.makeproject</type>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/make-project/1">
-            <name>TCC</name>
-            <creation-uuid>9f1a3aa8-99c7-4e81-8fc7-0f81f31e5e11</creation-uuid>
+            <name>lastTry</name>
+            <creation-uuid>66b2a938-a7eb-4d0c-b78b-6a680ca45e8c</creation-uuid>
             <make-project-type>0</make-project-type>
             <sourceEncoding>ISO-8859-1</sourceEncoding>
             <make-dep-projects/>
-            <sourceRootList/>
+            <sourceRootList>
+                <sourceRootElem>../sensDisp_Final.X</sourceRootElem>
+            </sourceRootList>
             <confList>
                 <confElem>
                     <name>default</name>

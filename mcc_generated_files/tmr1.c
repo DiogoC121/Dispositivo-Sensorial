@@ -14,7 +14,7 @@
   @Description
     This source file provides APIs for driver for TMR1. 
     Generation Information : 
-        Product Revision  :  PIC24 / dsPIC33 / PIC32MM MCUs - 1.171.4
+        Product Revision  :  PIC24 / dsPIC33 / PIC32MM MCUs - 1.171.5
         Device            :  PIC24FJ64GA002
     The generated drivers are tested against the following:
         Compiler          :  XC16 v2.10
@@ -49,21 +49,7 @@
 
 #include <stdio.h>
 #include "tmr1.h"
-//#include "../main.h"
-#include "../defines.h"
-#include "../mpu9250.h"
-#include "../nrf24l01.h" 
-
-extern bool flag_timer;          // Flag interrupção timer
-extern bool flag_mpu;            // Flag interrupção mpu
-extern bool flag_nrf;            // Flag interrupção nrf
-extern bool enviar_dados;        // Flag para enviar dados
-extern bool dados_recebidos;     // Flag para dados recebidos   
-extern float temperatura;           // Temperatura em °C
-extern float tensao_bateria;        // Tensão da bateria em V
-extern float strain_gauge_x;        // Leitura do strain gauge X
-extern float strain_gauge_y;        // Leitura do strain gauge Y
-extern float strain_gauge_z;        // Leitura do strain gauge Z
+#include "../flags.h"
 
 /**
  Section: File specific functions
@@ -107,11 +93,11 @@ void TMR1_Initialize (void)
 {
     //TMR1 0; 
     TMR1 = 0x00;
-    //Period = 0.25 s; Frequency = 4000000 Hz; PR1 15625; 
-    PR1 = 0x3D08;
-    //TCKPS 1:64; TON enabled; TSIDL disabled; TCS FOSC/2; TSYNC disabled; TGATE disabled; 
-    T1CON = 0x8020; // 0x8020 = 1000 0000 0010 0000 (TON=1, TCKPS=10)
-    
+    //Period = 0.0150005 s; Frequency = 2000000 Hz; PR1 30000; 
+    PR1 = 0x7530;
+    //TCKPS 1:1; TON enabled; TSIDL disabled; TCS FOSC/2; TSYNC disabled; TGATE disabled; 
+    T1CON = 0x8000;
+
     if(TMR1_InterruptHandler == NULL)
     {
         TMR1_SetInterruptHandler(&TMR1_CallBack);
@@ -130,19 +116,12 @@ void __attribute__ ( ( interrupt, no_auto_psv ) ) _T1Interrupt (  )
     /* Check if the Timer Interrupt/Status is set */
 
     //***User Area Begin
-    static volatile unsigned int CountCallBack = 0;
 
-    // callback function - called every 15th pass
-    if (++CountCallBack >= TMR1_INTERRUPT_TICKER_FACTOR)
-    {
-        // ticker function call
-        if(TMR1_InterruptHandler) 
-        { 
-               TMR1_InterruptHandler(); 
-        }
-
-        // reset ticker counter
-        CountCallBack = 0;
+    // ticker function call;
+    // ticker is 1 -> Callback function gets called everytime this ISR executes
+    if(TMR1_InterruptHandler) 
+    { 
+           TMR1_InterruptHandler(); 
     }
 
     //***User Area End
@@ -181,25 +160,10 @@ uint16_t TMR1_Counter16BitGet( void )
 
 void __attribute__ ((weak)) TMR1_CallBack(void)
 {
+    // Add your custom callback code here
+    flag_timer = true;  // Seta a flag
+    IFS0bits.T1IF = 0;  // Limpa a flag de interrupção do Timer 1
     TMR1_Stop();
-    tipo_interrupt(1); // Chama a função para tratar a interrupção do Timer1
-    flag_timer = true;
-    enviar_dados = true;
-
-    // Liga o ENABLE 50 ms antes da leitura
-    LATAbits.LATA4 = 1;
-    __delay_ms(50);
-
-    // Realiza as leituras dos ADCs
-    temperatura = NTC_To_Temperature(getADC(0));          // Canal AN0 (TEMP)
-    tensao_bateria = (getADC(1) / 1023.0) * 3.3;          // Canal AN1 (SBAT)
-    strain_gauge_x = (getADC(2) / 1023.0) * 3.3;          // Canal AN2 (SGX)
-    strain_gauge_y = (getADC(3) / 1023.0) * 3.3;          // Canal AN3 (SGY)
-    strain_gauge_z = (getADC(4) / 1023.0) * 3.3;          // Canal AN4 (SGZ)
-
-    // Desliga o ENABLE 50 ms após as leituras
-    __delay_ms(50);
-    LATAbits.LATA4 = 0;
 }
 
 void  TMR1_SetInterruptHandler(void (* InterruptHandler)(void))

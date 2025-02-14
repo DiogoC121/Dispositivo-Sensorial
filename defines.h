@@ -5,12 +5,10 @@
 #define	XC_HEADER_TEMPLATE_H
 
 /*
- * Arquivo.c para configuraÁ„o do dispositivo sensor
+ * Arquivo.c para configura√ß√£o do dispositivo sensor
  * Autor: Diogo Correia da Silva
  
- */
-
-#include <xc.h> // include processor files - each processor file is guarded.  
+ */ 
 // ---------------------------------------------------------------------------------------------------------------------------------
 /*============================================================================================================================*/  
 /*
@@ -28,35 +26,56 @@
 #include "mcc_generated_files/interrupt_manager.h"
 #include "mcc_generated_files/traps.h"
 #include "mcc_generated_files/tmr1.h"
+
 //#include "main.h"
 #include <math.h>
 #include <string.h>  
 #include <stdint.h>
 #include <stdbool.h>
+#include "flags.h"
+
 
 #define FCY 4000000UL
 #include <libpic30.h>
 
-#define VIN                         2.5     // Tens„o de alimentaÁ„o
-#define HVIN                        1.25    // Metade da tens„o de alimentaÁ„o
 
-#define R_ntc                       10000.0 // Resistor de 10kOhm no divisor de tens„o
+#define BUFFER_SIZE 16 // 32 bytes max -accel = 0,1,2, gyro = 3,4,5, mag = 6,7,8, tempmpu = 9,temntc = 10, tempsens = 11, bat = 12, sg = 13, 14, 15, erro = 16
+#define CHANNEL 66
+#define ADDRESS 0xE8E8F0F0E1LL
+
+#define VIN                         2.5     // Tens√£o de alimenta√ß√£o
+#define HVIN                        1.25    // Metade da tens√£o de alimenta√ß√£o
+
+#define R_ntc                       10000.0 // Resistor de 10kOhm no divisor de tens√£o
 #define BETA                        3950.0  // Coeficiente Beta do termistor NTC 10k
-#define T0                          298.15  // Temperatura de referÍncia em Kelvin (25∞C)
-#define R0                          10000.0 // ResistÍncia nominal do termistor a 25∞C (10k?)
+#define T0                          298.15  // Temperatura de refer√™ncia em Kelvin (25¬∞C)
+#define R0                          10000.0 // Resist√™ncia nominal do termistor a 25¬∞C (10k?)
 
-#define TEMP                        PIN_A0  // PINO - SENSOR ANAL”GICO DE TEMPERATURA NTC
-#define SBAT                        PIN_A1  // PINO - SENSOR ANAL”GICO DA BATERIA 
-#define SGZ                         PIN_B13 // PINO - SENSOR ANAL”GICO STRAIN GAUGE X
-#define SGY                         PIN_B14 // PINO - SENSOR ANAL”GICO STRAIN GAUGE Y
-#define SGX                         PIN_B15 // PINO - SENSOR ANAL”GICO STRAIN GAUGE Z
+#define VREF                        1.25    // Tens√£o de sa√≠da da Ponte de Wheatstone (V)
+#define VEXC                        2.5     // Tens√£o de excita√ß√£o da Ponte de Wheatstone (V)
+#define R0GAUGE                     350.0   // Resist√™ncia nominal da strain gauge (?)
+#define GF                          2.0     // Gauge Factor da strain gauge
+#define E                           200e9   // M√≥dulo de Young do material (ex: a√ßo = 200 GPa)
+#define AREA                        0.0001  // √Årea da se√ß√£o transversal em m¬≤ (exemplo: 10mm x 10mm)
 
-#define LED                         PIN_A2  // PINO - SAÕDA LED
-#define ENABLE                      PIN_A4  // PINO - SAÕDA LED2
-#define NOUSE1                      PIN_A3  // PINO - SAÕDA SEM USO
-#define NOUSE2                      PIN_B8  // PINO - SAÕDA SEM USO
-#define NOUSE3                      PIN_B9  // PINO - SAÕDA SEM USO
-#define NOUSE4                      PIN_B10 // PINO - SAÕDA SEM USO
+#define TEMP                        PIN_A0  // PINO - SENSOR ANAL√ìGICO DE TEMPERATURA NTC
+#define SBAT                        PIN_A1  // PINO - SENSOR ANAL√ìGICO DA BATERIA 
+#define SGZ                         PIN_B13 // PINO - SENSOR ANAL√ìGICO STRAIN GAUGE X
+#define SGY                         PIN_B14 // PINO - SENSOR ANAL√ìGICO STRAIN GAUGE Y
+#define SGX                         PIN_B15 // PINO - SENSOR ANAL√ìGICO STRAIN GAUGE Z
+
+#define TEMP_CH                     0       // CANAL - SENSOR ANAL√ìGICO DE TEMPERATURA NTC
+#define SBAT_CH                     1       // CANAL - SENSOR ANAL√ìGICO DA BATERIA 
+#define SGZ_CH                      13      // CANAL - SENSOR ANAL√ìGICO STRAIN GAUGE X
+#define SGY_CH                      14      // CANAL - SENSOR ANAL√ìGICO STRAIN GAUGE Y
+#define SGX_CH                      15      // CANAL - SENSOR ANAL√ìGICO STRAIN GAUGE Z
+
+#define LED                         PIN_A2  // PINO - SA√çDA LED
+#define ENABLE                      PIN_A4  // PINO - SA√çDA LED2
+#define NOUSE1                      PIN_A3  // PINO - SA√çDA SEM USO
+#define NOUSE2                      PIN_B8  // PINO - SA√çDA SEM USO
+#define NOUSE3                      PIN_B9  // PINO - SA√çDA SEM USO
+#define NOUSE4                      PIN_B10 // PINO - SA√çDA SEM USO
 
 #define SCK                         PIN_B0  // PINO - CLOCK
 #define SDO                         PIN_B1  // PINO - DATA OUT
@@ -210,8 +229,8 @@
 #define WRITE_BIT                   0x00    // Valor do bit de escrita
 #define READ_BIT                    0x80    // Valor do bit de escrita
   
-#define WHO_AM_I_RESULT_1           0x68    // Valor presente em WHO_AM_I (RESET VALUE - DATASHEET)
-#define WHO_AM_I_RESULT_2           0x71    // Valor presente em WHO_AM_I (ALSO DATASHEET)
+//#define WHO_AM_I_RESULT_1           0x68    // Valor presente em WHO_AM_I (RESET VALUE - DATASHEET)
+#define WHO_AM_I_RESULT             0x71    // Valor presente em WHO_AM_I (ALSO DATASHEET)
 #define MPU9250_ADDRESS             0x68    // SIGNAL_PATH_RESET reg
   
 #define WIA_RESULT                  0x48    // Valor presente em WIA
@@ -279,38 +298,15 @@
                                  // 0x1E71C1A052
 */ 
 
-/*============================================================================================================================*/
-/*
- * ProtÛtipo das funÁıes
- */
-
-uint16_t spi_xfer(uint16_t mensagem);
-uint16_t getADC(int sensor);
-void sleep_mode();
-void wake_up();
-void tipo_interrupt(int i);
-float NTC_To_Temperature(uint16_t adc_value); 
-int porcentagem_bateria(float bateria);
-void error(int16_t erro);
 
 /*============================================================================================================================*/
 /*
- * Vari·veis globais
+ * Vari√°veis globais
  */
 
-
-extern bool flag_timer;             // Flag interrupÁ„o timer
-extern bool flag_mpu;               // Flag interrupÁ„o mpu
-extern bool flag_nrf;               // Flag interrupÁ„o nrf
-extern bool enviar_dados;           // Flag para enviar dados
-extern bool dados_recebidos;        // Flag para dados recebidos   
+  
 extern int16_t receivedCommand;     // Comando recebido pelo NRF24L01+
-extern int16_t accel[3], gyro[3], mag[3], temp; //vari·veis mpu
-extern float temperatura;           // Temperatura em ∞C
-extern float tensao_bateria;        // Tens„o da bateria em V
-extern float strain_gauge_x;        // Leitura do strain gauge X
-extern float strain_gauge_y;        // Leitura do strain gauge Y
-extern float strain_gauge_z;        // Leitura do strain gauge Z
+extern int16_t accel[3], gyro[3], mag[3], temp; //vari√°veis mpu
 
 // Comment a function and leverage automatic documentation with slash star star
 /**

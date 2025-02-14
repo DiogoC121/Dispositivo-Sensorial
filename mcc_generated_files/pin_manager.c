@@ -15,7 +15,7 @@
   @Description:
     This source file provides implementations for PIN MANAGER.
     Generation Information :
-        Product Revision  :  PIC24 / dsPIC33 / PIC32MM MCUs - 1.171.4
+        Product Revision  :  PIC24 / dsPIC33 / PIC32MM MCUs - 1.171.5
         Device            :  PIC24FJ64GA002
     The generated drivers are tested against the following:
         Compiler          :  XC16 v2.10
@@ -92,12 +92,12 @@ void PIN_MANAGER_Initialize (void)
      ***************************************************************************/
     __builtin_write_OSCCONL(OSCCON & 0xbf); // unlock PPS
 
+    RPINR20bits.SDI1R = 0x0002;    //RB2->SPI1:SDI1
+    RPOR0bits.RP0R = 0x0008;    //RB0->SPI1:SCK1OUT
+    RPINR0bits.INT1R = 0x0003;    //RB3->EXT_INT:INT1
+    RPOR0bits.RP1R = 0x0007;    //RB1->SPI1:SDO1
     RPOR2bits.RP4R = 0x0009;    //RB4->SPI1:SS1OUT
     RPOR5bits.RP11R = 0x0009;    //RB11->SPI1:SS1OUT
-    RPOR0bits.RP1R = 0x0007;    //RB1->SPI1:SDO1
-    RPINR0bits.INT1R = 0x0003;    //RB3->EXT_INT:INT1
-    RPOR0bits.RP0R = 0x0008;    //RB0->SPI1:SCK1OUT
-    RPINR20bits.SDI1R = 0x0002;    //RB2->SPI1:SDI1
 
     __builtin_write_OSCCONL(OSCCON | 0x40); // lock PPS
 }

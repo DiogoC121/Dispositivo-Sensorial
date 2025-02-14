@@ -13,7 +13,7 @@
   @Description
     This header file provides APIs for driver for TMR1. 
     Generation Information : 
-        Product Revision  :  PIC24 / dsPIC33 / PIC32MM MCUs - 1.171.4
+        Product Revision  :  PIC24 / dsPIC33 / PIC32MM MCUs - 1.171.5
         Device            :  PIC24FJ64GA002
     The generated drivers are tested against the following:
         Compiler          :  XC16 v2.10
@@ -59,7 +59,7 @@
 
 #endif
 
-#define TMR1_INTERRUPT_TICKER_FACTOR    15
+#define TMR1_INTERRUPT_TICKER_FACTOR    1
 
 /**
   Section: Interface Routines

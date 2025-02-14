@@ -4,23 +4,32 @@
 #include <xc.h>
 #include <stdint.h>
 #include "defines.h"  // Inclui o arquivo defines.h
+#include "mcc_generated_files/system.h"
+#include "mcc_generated_files/pin_manager.h"
+#include "mcc_generated_files/clock.h"
+#include "mcc_generated_files/ext_int.h"
+#include "mcc_generated_files/spi1.h"
+#include "mcc_generated_files/adc1.h"
+#include "mcc_generated_files/interrupt_manager.h"
+#include "mcc_generated_files/traps.h"
+#include "mcc_generated_files/tmr1.h"
 
-// Protótipos das funções
+// ProtÃ³tipos das funÃ§Ãµes
 void MPU9250_Init(void);
 /**
-    <p><b>Protótipo da função:</b></p>
+    <p><b>ProtÃ³tipo da funÃ§Ã£o:</b></p>
     void MPU9250_Init(void);
   
     <p><b>Resumo:</b></p>
-    Inicializa o MPU9250, configurando os pinos SPI, a interface SPI1, a interrupção externa e os registradores do MPU9250.
+    Inicializa o MPU9250, configurando os pinos SPI, a interface SPI1, a interrupÃ§Ã£o externa e os registradores do MPU9250.
 
-    <p><b>Descrição:</b></p>
-    Esta função configura os pinos SPI, inicializa a interface SPI1, configura a interrupção externa no pino IRQMPU e inicializa os registradores do MPU9250 para operação normal.
+    <p><b>DescriÃ§Ã£o:</b></p>
+    Esta funÃ§Ã£o configura os pinos SPI, inicializa a interface SPI1, configura a interrupÃ§Ã£o externa no pino IRQMPU e inicializa os registradores do MPU9250 para operaÃ§Ã£o normal.
 
-    <p><b>Pré-condição:</b></p>
+    <p><b>PrÃ©-condiÃ§Ã£o:</b></p>
     O sistema deve estar configurado corretamente, e os pinos SPI devem estar definidos no arquivo defines.h.
 
-    <p><b>Parâmetros:</b></p>
+    <p><b>ParÃ¢metros:</b></p>
     Nenhum.
 
     <p><b>Retorna:</b></p>
@@ -31,25 +40,25 @@ void MPU9250_Init(void);
     MPU9250_Init();
     </code>
 
-    <p><b>Observações:</b></p>
-    Esta função deve ser chamada antes de qualquer outra função do MPU9250.
+    <p><b>ObservaÃ§Ãµes:</b></p>
+    Esta funÃ§Ã£o deve ser chamada antes de qualquer outra funÃ§Ã£o do MPU9250.
 */
 void MPU9250_WriteRegister(uint8_t reg, uint8_t data);
 /**
-    <p><b>Protótipo da função:</b></p>
+    <p><b>ProtÃ³tipo da funÃ§Ã£o:</b></p>
     void MPU9250_WriteRegister(uint8_t reg, uint8_t data);
   
     <p><b>Resumo:</b></p>
     Escreve um valor em um registrador do MPU9250.
 
-    <p><b>Descrição:</b></p>
-    Esta função escreve um valor de 8 bits em um registrador específico do MPU9250 usando a interface SPI.
+    <p><b>DescriÃ§Ã£o:</b></p>
+    Esta funÃ§Ã£o escreve um valor de 8 bits em um registrador especÃ­fico do MPU9250 usando a interface SPI.
 
-    <p><b>Pré-condição:</b></p>
-    A função MPU9250_Init deve ter sido chamada para configurar a interface SPI.
+    <p><b>PrÃ©-condiÃ§Ã£o:</b></p>
+    A funÃ§Ã£o MPU9250_Init deve ter sido chamada para configurar a interface SPI.
 
-    <p><b>Parâmetros:</b></p>
-    - reg: Endereço do registrador a ser escrito.
+    <p><b>ParÃ¢metros:</b></p>
+    - reg: EndereÃ§o do registrador a ser escrito.
     - data: Valor a ser escrito no registrador.
 
     <p><b>Retorna:</b></p>
@@ -60,25 +69,25 @@ void MPU9250_WriteRegister(uint8_t reg, uint8_t data);
     MPU9250_WriteRegister(MPU9250_PWR_MGMT_1, 0x00);
     </code>
 
-    <p><b>Observações:</b></p>
-    O endereço do registrador deve ser válido conforme o datasheet do MPU9250.
+    <p><b>ObservaÃ§Ãµes:</b></p>
+    O endereÃ§o do registrador deve ser vÃ¡lido conforme o datasheet do MPU9250.
 */
 uint8_t MPU9250_ReadRegister(uint8_t reg);
 /**
-    <p><b>Protótipo da função:</b></p>
+    <p><b>ProtÃ³tipo da funÃ§Ã£o:</b></p>
     uint8_t MPU9250_ReadRegister(uint8_t reg);
   
     <p><b>Resumo:</b></p>
-    Lê um valor de um registrador do MPU9250.
+    LÃª um valor de um registrador do MPU9250.
 
-    <p><b>Descrição:</b></p>
-    Esta função lê um valor de 8 bits de um registrador específico do MPU9250 usando a interface SPI.
+    <p><b>DescriÃ§Ã£o:</b></p>
+    Esta funÃ§Ã£o lÃª um valor de 8 bits de um registrador especÃ­fico do MPU9250 usando a interface SPI.
 
-    <p><b>Pré-condição:</b></p>
-    A função MPU9250_Init deve ter sido chamada para configurar a interface SPI.
+    <p><b>PrÃ©-condiÃ§Ã£o:</b></p>
+    A funÃ§Ã£o MPU9250_Init deve ter sido chamada para configurar a interface SPI.
 
-    <p><b>Parâmetros:</b></p>
-    - reg: Endereço do registrador a ser lido.
+    <p><b>ParÃ¢metros:</b></p>
+    - reg: EndereÃ§o do registrador a ser lido.
 
     <p><b>Retorna:</b></p>
     O valor lido do registrador.
@@ -88,28 +97,28 @@ uint8_t MPU9250_ReadRegister(uint8_t reg);
     uint8_t who_am_i = MPU9250_ReadRegister(MPU9250_WHO_AM_I);
     </code>
 
-    <p><b>Observações:</b></p>
-    O endereço do registrador deve ser válido conforme o datasheet do MPU9250.
+    <p><b>ObservaÃ§Ãµes:</b></p>
+    O endereÃ§o do registrador deve ser vÃ¡lido conforme o datasheet do MPU9250.
 */
 void MPU9250_ReadData(int16_t *accel, int16_t *gyro, int16_t *mag, int16_t *temp);
 /**
-    <p><b>Protótipo da função:</b></p>
+    <p><b>ProtÃ³tipo da funÃ§Ã£o:</b></p>
     void MPU9250_ReadData(int16_t *accel, int16_t *gyro, int16_t *mag, int16_t *temp);
   
     <p><b>Resumo:</b></p>
-    Lê os dados de aceleração, giroscópio, magnetômetro e temperatura do MPU9250.
+    LÃª os dados de aceleraÃ§Ã£o, giroscÃ³pio, magnetÃ´metro e temperatura do MPU9250.
 
-    <p><b>Descrição:</b></p>
-    Esta função lê os dados brutos dos sensores do MPU9250 e os converte para valores de 16 bits.
+    <p><b>DescriÃ§Ã£o:</b></p>
+    Esta funÃ§Ã£o lÃª os dados brutos dos sensores do MPU9250 e os converte para valores de 16 bits.
 
-    <p><b>Pré-condição:</b></p>
-    A função MPU9250_Init deve ter sido chamada para configurar a interface SPI.
+    <p><b>PrÃ©-condiÃ§Ã£o:</b></p>
+    A funÃ§Ã£o MPU9250_Init deve ter sido chamada para configurar a interface SPI.
 
-    <p><b>Parâmetros:</b></p>
-    - accel: Ponteiro para um array de 3 elementos para armazenar os dados de aceleração (X, Y, Z).
-    - gyro: Ponteiro para um array de 3 elementos para armazenar os dados do giroscópio (X, Y, Z).
-    - mag: Ponteiro para um array de 3 elementos para armazenar os dados do magnetômetro (X, Y, Z).
-    - temp: Ponteiro para uma variável para armazenar a temperatura.
+    <p><b>ParÃ¢metros:</b></p>
+    - accel: Ponteiro para um array de 3 elementos para armazenar os dados de aceleraÃ§Ã£o (X, Y, Z).
+    - gyro: Ponteiro para um array de 3 elementos para armazenar os dados do giroscÃ³pio (X, Y, Z).
+    - mag: Ponteiro para um array de 3 elementos para armazenar os dados do magnetÃ´metro (X, Y, Z).
+    - temp: Ponteiro para uma variÃ¡vel para armazenar a temperatura.
 
     <p><b>Retorna:</b></p>
     Nada.
@@ -120,24 +129,24 @@ void MPU9250_ReadData(int16_t *accel, int16_t *gyro, int16_t *mag, int16_t *temp
     MPU9250_ReadData(accel, gyro, mag, &temp);
     </code>
 
-    <p><b>Observações:</b></p>
-    Os dados brutos devem ser convertidos para unidades físicas conforme o datasheet do MPU9250.
+    <p><b>ObservaÃ§Ãµes:</b></p>
+    Os dados brutos devem ser convertidos para unidades fÃ­sicas conforme o datasheet do MPU9250.
 */
 void MPU9250_Sleep(void);
 /**
-    <p><b>Protótipo da função:</b></p>
+    <p><b>ProtÃ³tipo da funÃ§Ã£o:</b></p>
     void MPU9250_Sleep(void);
   
     <p><b>Resumo:</b></p>
     Coloca o MPU9250 em modo de baixo consumo (sleep mode).
 
-    <p><b>Descrição:</b></p>
-    Esta função configura o MPU9250 para entrar em modo de baixo consumo, reduzindo o consumo de energia.
+    <p><b>DescriÃ§Ã£o:</b></p>
+    Esta funÃ§Ã£o configura o MPU9250 para entrar em modo de baixo consumo, reduzindo o consumo de energia.
 
-    <p><b>Pré-condição:</b></p>
-    A função MPU9250_Init deve ter sido chamada para configurar a interface SPI.
+    <p><b>PrÃ©-condiÃ§Ã£o:</b></p>
+    A funÃ§Ã£o MPU9250_Init deve ter sido chamada para configurar a interface SPI.
 
-    <p><b>Parâmetros:</b></p>
+    <p><b>ParÃ¢metros:</b></p>
     Nenhum.
 
     <p><b>Retorna:</b></p>
@@ -148,24 +157,24 @@ void MPU9250_Sleep(void);
     MPU9250_Sleep();
     </code>
 
-    <p><b>Observações:</b></p>
-    O MPU9250 deve ser acordado usando a função MPU9250_Wake antes de realizar novas leituras.
+    <p><b>ObservaÃ§Ãµes:</b></p>
+    O MPU9250 deve ser acordado usando a funÃ§Ã£o MPU9250_Wake antes de realizar novas leituras.
 */
 void MPU9250_Wake(void);
 /**
-    <p><b>Protótipo da função:</b></p>
+    <p><b>ProtÃ³tipo da funÃ§Ã£o:</b></p>
     void MPU9250_Wake(void);
   
     <p><b>Resumo:</b></p>
     Acorda o MPU9250 do modo de baixo consumo.
 
-    <p><b>Descrição:</b></p>
-    Esta função configura o MPU9250 para sair do modo de baixo consumo e retomar a operação normal.
+    <p><b>DescriÃ§Ã£o:</b></p>
+    Esta funÃ§Ã£o configura o MPU9250 para sair do modo de baixo consumo e retomar a operaÃ§Ã£o normal.
 
-    <p><b>Pré-condição:</b></p>
-    A função MPU9250_Init deve ter sido chamada para configurar a interface SPI.
+    <p><b>PrÃ©-condiÃ§Ã£o:</b></p>
+    A funÃ§Ã£o MPU9250_Init deve ter sido chamada para configurar a interface SPI.
 
-    <p><b>Parâmetros:</b></p>
+    <p><b>ParÃ¢metros:</b></p>
     Nenhum.
 
     <p><b>Retorna:</b></p>
@@ -176,28 +185,28 @@ void MPU9250_Wake(void);
     MPU9250_Wake();
     </code>
 
-    <p><b>Observações:</b></p>
-    O MPU9250 deve estar em modo de baixo consumo antes de chamar esta função.
+    <p><b>ObservaÃ§Ãµes:</b></p>
+    O MPU9250 deve estar em modo de baixo consumo antes de chamar esta funÃ§Ã£o.
 */
 uint8_t MPU9250_CheckError(void);
 /**
-    <p><b>Protótipo da função:</b></p>
+    <p><b>ProtÃ³tipo da funÃ§Ã£o:</b></p>
     uint8_t MPU9250_CheckError(void);
   
     <p><b>Resumo:</b></p>
-    Verifica se houve algum erro durante a operação do MPU9250.
+    Verifica se houve algum erro durante a operaÃ§Ã£o do MPU9250.
 
-    <p><b>Descrição:</b></p>
-    Esta função lê o registrador de status do MPU9250 e verifica se houve algum erro.
+    <p><b>DescriÃ§Ã£o:</b></p>
+    Esta funÃ§Ã£o lÃª o registrador de status do MPU9250 e verifica se houve algum erro.
 
-    <p><b>Pré-condição:</b></p>
-    A função MPU9250_Init deve ter sido chamada para configurar a interface SPI.
+    <p><b>PrÃ©-condiÃ§Ã£o:</b></p>
+    A funÃ§Ã£o MPU9250_Init deve ter sido chamada para configurar a interface SPI.
 
-    <p><b>Parâmetros:</b></p>
+    <p><b>ParÃ¢metros:</b></p>
     Nenhum.
 
     <p><b>Retorna:</b></p>
-    1 se houve erro, 0 caso contrário.
+    1 se houve erro, 0 caso contrÃ¡rio.
 
     <p><b>Exemplo:</b></p>
     <code>
@@ -206,7 +215,7 @@ uint8_t MPU9250_CheckError(void);
     }
     </code>
 
-    <p><b>Observações:</b></p>
+    <p><b>ObservaÃ§Ãµes:</b></p>
     O registrador de status deve ser interpretado conforme o datasheet do MPU9250.
 */
 void MPU9250_read_accel(uint8_t* xH, uint8_t* xL, uint8_t* yH, uint8_t* yL, uint8_t* zH, uint8_t* zL);
@@ -216,19 +225,19 @@ void MPU9250_ReadData(int16_t *accel, int16_t *gyro, int16_t *mag, int16_t *temp
 /*
 void __attribute__((interrupt, no_auto_psv)) _INT1Interrupt(void);
 / **
-    <p><b>Protótipo da função:</b></p>
+    <p><b>ProtÃ³tipo da funÃ§Ã£o:</b></p>
     void __attribute__((interrupt, no_auto_psv)) _INT1Interrupt(void);
   
     <p><b>Resumo:</b></p>
-    Função de interrupção externa para o pino IRQMPU.
+    FunÃ§Ã£o de interrupÃ§Ã£o externa para o pino IRQMPU.
 
-    <p><b>Descrição:</b></p>
-    Esta função é chamada quando ocorre uma interrupção no pino IRQMPU. Ela lê os dados do MPU9250 e os processa.
+    <p><b>DescriÃ§Ã£o:</b></p>
+    Esta funÃ§Ã£o Ã© chamada quando ocorre uma interrupÃ§Ã£o no pino IRQMPU. Ela lÃª os dados do MPU9250 e os processa.
 
-    <p><b>Pré-condição:</b></p>
-    A interrupção externa deve estar configurada corretamente.
+    <p><b>PrÃ©-condiÃ§Ã£o:</b></p>
+    A interrupÃ§Ã£o externa deve estar configurada corretamente.
 
-    <p><b>Parâmetros:</b></p>
+    <p><b>ParÃ¢metros:</b></p>
     Nenhum.
 
     <p><b>Retorna:</b></p>
@@ -236,11 +245,11 @@ void __attribute__((interrupt, no_auto_psv)) _INT1Interrupt(void);
 
     <p><b>Exemplo:</b></p>
     <code>
-    // Configuração da interrupção no código principal
+    // ConfiguraÃ§Ã£o da interrupÃ§Ã£o no cÃ³digo principal
     </code>
 
-    <p><b>Observações:</b></p>
-    Esta função deve ser associada à interrupção externa no código principal.
+    <p><b>ObservaÃ§Ãµes:</b></p>
+    Esta funÃ§Ã£o deve ser associada Ã  interrupÃ§Ã£o externa no cÃ³digo principal.
 * /
 */
 

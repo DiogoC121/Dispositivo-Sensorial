@@ -13,7 +13,7 @@
   @Description:
     This header file provides implementations for driver APIs for all modules selected in the GUI.
     Generation Information :
-        Product Revision  :  PIC24 / dsPIC33 / PIC32MM MCUs - 1.171.4
+        Product Revision  :  PIC24 / dsPIC33 / PIC32MM MCUs - 1.171.5
         Device            :  PIC24FJ64GA002
     The generated drivers are tested against the following:
         Compiler          :  XC16 v2.10
@@ -50,14 +50,14 @@
 #pragma config IOL1WAY = ON    //IOLOCK Protection->Once IOLOCK is set, cannot be changed
 #pragma config OSCIOFNC = ON    //Primary Oscillator Output Function->OSC2/CLKO/RC15 functions as port I/O (RC15)
 #pragma config FCKSM = CSDCMD    //Clock Switching and Monitor->Clock switching and Fail-Safe Clock Monitor are disabled
-#pragma config FNOSC = FRC    //Oscillator Select->Fast RC Oscillator (FRC)
+#pragma config FNOSC = FRCDIV    //Oscillator Select->Fast RC Oscillator with Postscaler (FRCDIV)
 #pragma config SOSCSEL = SOSC    //Sec Oscillator Select->Default Secondary Oscillator (SOSC)
 #pragma config WUTSEL = LEG    //Wake-up timer Select->Legacy Wake-up Timer
 #pragma config IESO = OFF    //Internal External Switch Over Mode->IESO mode (Two-Speed Start-up) disabled
 
 // CONFIG1
 #pragma config WDTPS = PS32768    //Watchdog Timer Postscaler->1:32768
-#pragma config FWPSA = PR32    //WDT Prescaler->Prescaler ratio of 1:32
+#pragma config FWPSA = PR128    //WDT Prescaler->Prescaler ratio of 1:128
 #pragma config WINDIS = ON    //Watchdog Timer Window->Standard Watchdog Timer enabled,(Windowed-mode is disabled)
 #pragma config FWDTEN = OFF    //Watchdog Timer Enable->Watchdog Timer is disabled
 #pragma config ICS = PGx3    //Comm Channel Select->Emulator EMUC3/EMUD3 pins are shared with PGC3/PGD3
@@ -69,12 +69,12 @@
 #include "pin_manager.h"
 #include "clock.h"
 #include "system.h"
-#include "adc1.h"
-#include "tmr1.h"
-#include "ext_int.h"
 #include "spi1.h"
+#include "ext_int.h"
 #include "interrupt_manager.h"
 #include "traps.h"
+#include "adc1.h"
+#include "tmr1.h"
 
 void SYSTEM_Initialize(void)
 {
@@ -83,8 +83,8 @@ void SYSTEM_Initialize(void)
     CLOCK_Initialize();
     SPI1_Initialize();
     ADC1_Initialize();
-    TMR1_Initialize();
     EXT_INT_Initialize();
+    TMR1_Initialize();
 }
 
 /**

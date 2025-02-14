@@ -13,7 +13,7 @@
   @Description
     This source file provides APIs for ADC1.
     Generation Information :
-        Product Revision  :  PIC24 / dsPIC33 / PIC32MM MCUs - 1.171.4
+        Product Revision  :  PIC24 / dsPIC33 / PIC32MM MCUs - 1.171.5
         Device            :  PIC24FJ64GA002      
     The generated drivers are tested against the following:
         Compiler          :  XC16 v2.10
@@ -60,8 +60,8 @@ static void (*ADC1_DefaultInterruptHandler)(void) = NULL;
 
 void ADC1_Initialize (void)
 {
-    // ASAM enabled; ADSIDL disabled; DONE disabled; FORM Absolute decimal result, unsigned, right-justified; SAMP disabled; SSRC Clearing sample bit ends sampling and starts conversion; ADON enabled; 
-    AD1CON1 = 0x8004;
+    // ASAM disabled; ADSIDL disabled; DONE disabled; FORM Absolute decimal result, unsigned, right-justified; SAMP disabled; SSRC Clearing sample bit ends sampling and starts conversion; ADON enabled; 
+    AD1CON1 = 0x8000;
     // CSCNA disabled; VCFG0 AVDD; VCFG1 AVSS; ALTS disabled; BUFM disabled; SMPI Generates interrupt after completion of every sample/conversion operation; 
     AD1CON2 = 0x00;
     // SAMC 0; ADRC FOSC/2; ADCS 0; 

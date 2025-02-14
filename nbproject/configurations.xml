@@ -7,27 +7,28 @@
       <logicalFolder name="MCC Generated Files"
                      displayName="MCC Generated Files"
                      projectFiles="true">
-        <itemPath>mcc_generated_files/system.h</itemPath>
-        <itemPath>mcc_generated_files/spi1.h</itemPath>
-        <itemPath>mcc_generated_files/ext_int.h</itemPath>
+        <itemPath>mcc_generated_files/mcc.h</itemPath>
+        <itemPath>mcc_generated_files/adc1.h</itemPath>
+        <itemPath>mcc_generated_files/interrupt_manager.h</itemPath>
+        <itemPath>mcc_generated_files/traps.h</itemPath>
         <itemPath>mcc_generated_files/adc_module_features.h</itemPath>
         <itemPath>mcc_generated_files/clock.h</itemPath>
-        <itemPath>mcc_generated_files/traps.h</itemPath>
-        <itemPath>mcc_generated_files/adc1.h</itemPath>
         <itemPath>mcc_generated_files/pin_manager.h</itemPath>
-        <itemPath>mcc_generated_files/mcc.h</itemPath>
-        <itemPath>mcc_generated_files/interrupt_manager.h</itemPath>
+        <itemPath>mcc_generated_files/spi1.h</itemPath>
+        <itemPath>mcc_generated_files/ext_int.h</itemPath>
         <itemPath>mcc_generated_files/tmr1.h</itemPath>
+        <itemPath>mcc_generated_files/system.h</itemPath>
       </logicalFolder>
-      <itemPath>defines.h</itemPath>
-      <itemPath>mpu9250.h</itemPath>
-      <itemPath>nrf24l01.h</itemPath>
+      <itemPath>../sensDisp_Final.X/defines.h</itemPath>
+      <itemPath>../sensDisp_Final.X/mpu9250.h</itemPath>
+      <itemPath>../sensDisp_Final.X/nrf24l01.h</itemPath>
+      <itemPath>flags.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
                    projectFiles="true">
       <itemPath>Makefile</itemPath>
-      <itemPath>TCC.mc3</itemPath>
+      <itemPath>lastTry.mc3</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -39,29 +40,33 @@
       <logicalFolder name="MCC Generated Files"
                      displayName="MCC Generated Files"
                      projectFiles="true">
-        <itemPath>mcc_generated_files/spi1.c</itemPath>
-        <itemPath>mcc_generated_files/mcc.c</itemPath>
-        <itemPath>mcc_generated_files/ext_int.c</itemPath>
-        <itemPath>mcc_generated_files/traps.c</itemPath>
-        <itemPath>mcc_generated_files/system.c</itemPath>
         <itemPath>mcc_generated_files/pin_manager.c</itemPath>
-        <itemPath>mcc_generated_files/adc1.c</itemPath>
-        <itemPath>mcc_generated_files/clock.c</itemPath>
+        <itemPath>mcc_generated_files/spi1.c</itemPath>
+        <itemPath>mcc_generated_files/traps.c</itemPath>
+        <itemPath>mcc_generated_files/where_was_i.s</itemPath>
         <itemPath>mcc_generated_files/interrupt_manager.c</itemPath>
+        <itemPath>mcc_generated_files/clock.c</itemPath>
+        <itemPath>mcc_generated_files/ext_int.c</itemPath>
+        <itemPath>mcc_generated_files/system.c</itemPath>
         <itemPath>mcc_generated_files/tmr1.c</itemPath>
+        <itemPath>mcc_generated_files/mcc.c</itemPath>
+        <itemPath>mcc_generated_files/adc1.c</itemPath>
       </logicalFolder>
       <itemPath>main.c</itemPath>
-      <itemPath>mpu9250.c</itemPath>
-      <itemPath>nrf24l01.c</itemPath>
+      <itemPath>../sensDisp_Final.X/mpu9250.c</itemPath>
+      <itemPath>../sensDisp_Final.X/nrf24l01.c</itemPath>
     </logicalFolder>
   </logicalFolder>
+  <sourceRootList>
+    <Elem>../sensDisp_Final.X</Elem>
+  </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
     <conf name="default" type="2">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
         <targetDevice>PIC24FJ64GA002</targetDevice>
-        <targetHeader></targetHeader>
+        <targetHeader>AC162088</targetHeader>
         <targetPluginBoard></targetPluginBoard>
         <platformTool>Simulator</platformTool>
         <languageToolchain>XC16</languageToolchain>
@@ -69,7 +74,7 @@
         <platform>3</platform>
       </toolsSet>
       <packs>
-        <pack name="PIC24F-GA-GB_DFP" vendor="Microchip" version="1.9.336"/>
+        <pack name="PIC24F-GA-GB_DFP" vendor="Microchip" version="1.10.375"/>
       </packs>
       <ScriptingSettings>
       </ScriptingSettings>

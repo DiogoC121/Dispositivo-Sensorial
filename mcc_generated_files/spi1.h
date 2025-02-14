@@ -13,7 +13,7 @@
   @Description
     This header file provides APIs for driver for SPI1.
     Generation Information :
-        Product Revision  :  PIC24 / dsPIC33 / PIC32MM MCUs - 1.171.4
+        Product Revision  :  PIC24 / dsPIC33 / PIC32MM MCUs - 1.171.5
         Device            :  PIC24FJ64GA002
     The generated drivers are tested against the following:
         Compiler          :  XC16 v2.10
@@ -179,19 +179,21 @@ typedef enum {
 
 void SPI1_Initialize (void);
 
+
+
 /**
   @Summary
-    Exchanges one word of data from SPI1
+    Exchanges one byte of data from SPI1
 
   @Description
-    This routine exchanges one word of data from SPI1.
+    This routine exchanges one byte of data from the SPI1.
     This is a blocking routine.
 
   @Preconditions
     The SPI1_Initialize routine must have been called for the specified
     SPI1 driver instance.
-    The SPI transfer mode should be selected as 16bit mode in the initialization. 
-    Do not select 8 bit mode, only the lower byte of the data will sent or received if selected. 
+    The SPI transfer mode should be selected as 8bit mode in the initialization. 
+    Do not select 16 bit mode, as additional data byte will be inserted for each 8 bit data if selected.
 
   @Returns
     Data read from SPI1
@@ -201,27 +203,26 @@ void SPI1_Initialize (void);
 
   @Example 
     Refer to SPI1_Initialize() for an example	
- 
 */
-
-uint16_t SPI1_Exchange16bit( uint16_t data );
+        
+uint8_t SPI1_Exchange8bit( uint8_t data );
 
 /**
   @Summary
-    Exchanges data from a buffer of size one word from SPI1
+    Exchanges data from a buffer of size one byte from SPI1
 
   @Description
-    This routine exchanges data from a buffer of size one word from the SPI1.
+    This routine exchanges data from a buffer of size one byte from the SPI1.
     This is a blocking routine.
 
   @Preconditions
     The SPI1_Initialize routine must have been called for the specified
     SPI1 driver instance.
-    The SPI transfer mode should be selected as 16bit mode in the initialization. 
-    Do not select 8 bit mode, only the lower byte of the data will sent or received if selected. 
+    The SPI transfer mode should be selected as 8bit mode in the initialization. 
+    Do not select 16 bit mode, as additional data byte will be inserted for each 8 bit data if selected.
 
   @Returns
-    Number of 16bit data written/read.
+    Number of 8bit data written/read.
 
   @Param
     dataTransmitted         - Buffer of data to be written onto SPI1.
@@ -230,15 +231,14 @@ uint16_t SPI1_Exchange16bit( uint16_t data );
     byteCount         - Number of bytes to be exchanged.
  
   @Param
-    dataTransmitted         - Buffer of data to be read from SPI1.
+    dataReceived         - Buffer of data to be read from SPI1.
 
   @Example 
     Refer to SPI1_Initialize() for an example	
  
 */
 
-uint16_t SPI1_Exchange16bitBuffer(uint16_t *dataTransmitted, uint16_t byteCount, uint16_t *dataReceived);
-
+uint16_t SPI1_Exchange8bitBuffer(uint8_t *dataTransmitted, uint16_t byteCount, uint8_t *dataReceived);
 
 /**
   @Summary

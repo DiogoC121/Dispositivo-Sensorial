@@ -1,81 +1,66 @@
 #include "mpu9250.h"
 
-// Variáveis globais
-extern bool flag_timer;             // Flag interrupção timer
-extern bool flag_mpu;               // Flag interrupção mpu
-extern bool flag_nrf;               // Flag interrupção nrf
+// VariÃ¡veis globais
+extern bool flag_mpu;               // Flag interrupÃ§Ã£o mpu
 extern bool enviar_dados;           // Flag para enviar dados
-extern bool dados_recebidos;        // Flag para dados recebidos   
-extern int16_t receivedCommand;     // Comando recebido pelo NRF24L01+
-extern int16_t accel[3], gyro[3], mag[3], temp; //variáveis mpu
-extern float temperatura;           // Temperatura em °C
-extern float tensao_bateria;        // Tensão da bateria em V
-extern float strain_gauge_x;        // Leitura do strain gauge X
-extern float strain_gauge_y;        // Leitura do strain gauge Y
-extern float strain_gauge_z;        // Leitura do strain gauge Z
 
-// Função para inicializar o MPU9250
+// FunÃ§Ã£o para inicializar o MPU9250
 void MPU9250_Init(void) {
 
-    // Configuração inicial do MPU9250
+    // ConfiguraÃ§Ã£o inicial do MPU9250
     MPU9250_WriteRegister(PWR_MGMT_1, 0x01);  // Ligar o MPU9250
     MPU9250_WriteRegister(PWR_MGMT_2, 0x00);  // Habilitar todos os sensores
-    MPU9250_WriteRegister(INT_PIN_CFG, 0x12); // Configurar interrupção
-    MPU9250_WriteRegister(INT_ENABLE, 0x01);  // Habilitar interrupção
+    MPU9250_WriteRegister(INT_PIN_CFG, 0x12); // Configurar interrupÃ§Ã£o
+    MPU9250_WriteRegister(INT_ENABLE, 0x01);  // Habilitar interrupÃ§Ã£o
 
-    // Configuração do acelerômetro e giroscópio
-    MPU9250_WriteRegister(ACCEL_CONFIG, 0x10); // Acelerômetro ±2g   0x00 = +±2g    0x08 = ±4g      0x10 = ±8g       0x18 = ±16g
-    MPU9250_WriteRegister(GYRO_CONFIG, 0x08);  // Giroscópio ±250°/s 0x00 = +250dps 0x08 = +500 dps 0x10 = +1000 dps 0x18 = +2000 dps
+    // ConfiguraÃ§Ã£o do acelerÃ´metro e giroscÃ³pio
+    MPU9250_WriteRegister(ACCEL_CONFIG, 0x10); // AcelerÃ´metro Â±2g   0x00 = +Â±2g    0x08 = Â±4g      0x10 = Â±8g       0x18 = Â±16g
+    MPU9250_WriteRegister(GYRO_CONFIG, 0x08);  // GiroscÃ³pio Â±250Â°/s 0x00 = +250dps 0x08 = +500 dps 0x10 = +1000 dps 0x18 = +2000 dps
 
-    // Configuração do magnetômetro (AK8963)
+    // ConfiguraÃ§Ã£o do magnetÃ´metro (AK8963)
     MPU9250_WriteRegister(USER_CTRL, 0x20);    // Habilitar I2C Master
     MPU9250_WriteRegister(I2C_MST_CTRL, 0x0D); // Configurar I2C Master
-    MPU9250_WriteRegister(I2C_SLV0_ADDR, 0x8C); // Endereço do AK8963 (leitura)
+    MPU9250_WriteRegister(I2C_SLV0_ADDR, 0x8C); // EndereÃ§o do AK8963 (leitura)
     MPU9250_WriteRegister(I2C_SLV0_REG, CNTL); // Registrador de controle
-    MPU9250_WriteRegister(I2C_SLV0_CTRL, 0x81); // Habilitar leitura de 1 byte
-    MPU9250_WriteRegister(I2C_SLV0_ADDR, 0x0C); // Endereço do AK8963 (escrita)
-    MPU9250_WriteRegister(I2C_SLV0_REG, CNTL); // Registrador de controle
+    //MPU9250_WriteRegister(I2C_SLV0_CTRL, 0x81); // Habilitar leitura de 1 byte
+    //MPU9250_WriteRegister(I2C_SLV0_ADDR, 0x0C); // EndereÃ§o do AK8963 (escrita)
+    //MPU9250_WriteRegister(I2C_SLV0_REG, CNTL); // Registrador de controle
+    MPU9250_WriteRegister(I2C_SLV0_REG, 0x16); // Configurar magnetÃ´metro para modo contÃ­nuo
     MPU9250_WriteRegister(I2C_SLV0_CTRL, 0x81); // Habilitar escrita de 1 byte
-    MPU9250_WriteRegister(I2C_SLV0_REG, 0x16); // Configurar magnetômetro para modo contínuo
 }
 
-// Função para escrever em um registrador do MPU9250
+// FunÃ§Ã£o para escrever em um registrador do MPU9250
 void MPU9250_WriteRegister(uint8_t reg, uint8_t data) {
-   uint16_t send = 0;
-  
-   send = (WRITE_BIT | reg) << 8;
-   send = (send | data);
    
    SSNRF_SetHigh();
-   SSMPU_SetLow();                                                                             // Ativa o chip MPU9250
+   SSMPU_SetLow(); 
+  
+   SPI1_Exchange8bit(WRITE_BIT | reg);
+   SPI1_Exchange8bit(data);     
    
-   spi_xfer (send);
-   while (!SPI1STATbits.SPIRBF);  // Esperar o buffer de recepção estar cheio                                                                     // send write command, register address and data
+   while (!SPI1STATbits.SPIRBF);  // Esperar o buffer de recepÃ§Ã£o estar cheio                                                                     // send write command, register address and data
  
    SSMPU_SetHigh();                                                                             // Desativa o chip MPU9250
 }
 
-// Função para ler um registrador do MPU9250
+// FunÃ§Ã£o para ler um registrador do MPU9250
 uint8_t MPU9250_ReadRegister(uint8_t reg) {
-   uint16_t send = 0;
-  
-   send = (READ_BIT | reg) << 8; 
-   while (!SPI1STATbits.SPIRBF);  // Esperar o buffer de recepção estar cheio
-   send = (send | 0xFF);
-   while (!SPI1STATbits.SPIRBF);  // Esperar o buffer de recepção estar cheio
-   uint16_t received = 0x0000;
+   uint8_t received;
 
    SSNRF_SetHigh();
-   SSMPU_SetLow();                                                                             // Ativa o chip MPU9250
-   
-   received = spi_xfer (send);                                                          // send read command and register address and read data
+   SSMPU_SetLow();    
+  
+   SPI1_Exchange8bit(READ_BIT | reg);
+   while (!SPI1STATbits.SPIRBF);  // Esperar o buffer de recepÃ§Ã£o estar cheio
+   received = SPI1_Exchange8bit(0xFF);             
+   while (!SPI1STATbits.SPIRBF);  // Esperar o buffer de recepÃ§Ã£o estar cheio           // send read command and register address and read data
     
    SSMPU_SetHigh();                                                                             // Desativa o chip MPU9250
   
    return received;
 }
 
-// Função para ler o sensor de temperatura do MPU9250
+// FunÃ§Ã£o para ler o sensor de temperatura do MPU9250
 void MPU9250_read_temp(uint8_t* tempH, uint8_t* tempL)
 {
     // read temperature data
@@ -83,7 +68,7 @@ void MPU9250_read_temp(uint8_t* tempH, uint8_t* tempL)
     *tempL = MPU9250_ReadRegister(TEMP_OUT_L);      
 }
 
-// Função para ler o sensor de aceleraÃ§Ã£o do MPU9250
+// FunÃ§Ã£o para ler o sensor de aceleraÃƒÂ§ÃƒÂ£o do MPU9250
 void MPU9250_read_accel(uint8_t* xH, uint8_t* xL, uint8_t* yH, uint8_t* yL, uint8_t* zH, uint8_t* zL)
 { 
     // read accelerometer data
@@ -95,7 +80,7 @@ void MPU9250_read_accel(uint8_t* xH, uint8_t* xL, uint8_t* yH, uint8_t* yL, uint
     *zL = MPU9250_ReadRegister(ACCEL_ZOUT_L);
 }
 
-// Função para ler o sensor de giro do MPU9250
+// FunÃ§Ã£o para ler o sensor de giro do MPU9250
 void MPU9250_read_gyro(uint8_t* xH, uint8_t* xL, uint8_t* yH, uint8_t* yL, uint8_t* zH, uint8_t* zL)
 {
     // read gyroscope data
@@ -107,7 +92,7 @@ void MPU9250_read_gyro(uint8_t* xH, uint8_t* xL, uint8_t* yH, uint8_t* yL, uint8
     *zL = MPU9250_ReadRegister(GYRO_ZOUT_L);
 }
 
-// Função para ler o sensor magnÃ©tico do MPU9250
+// FunÃ§Ã£o para ler o sensor magnÃƒÂ©tico do MPU9250
 void MPU9250_read_mag(uint8_t* xH, uint8_t* xL, uint8_t* yH, uint8_t* yL, uint8_t* zH, uint8_t* zL)
 {
     // read magnetometer data
@@ -119,7 +104,7 @@ void MPU9250_read_mag(uint8_t* xH, uint8_t* xL, uint8_t* yH, uint8_t* yL, uint8_
     *zL = MPU9250_ReadRegister(HZL);
 }
 
-// Função para ler os dados de aceleração, giroscópio, magnetômetro e temperatura
+// FunÃ§Ã£o para ler os dados de aceleraÃ§Ã£o, giroscÃ³pio, magnetÃ´metro e temperatura
 void MPU9250_ReadData(int16_t *accel, int16_t *gyro, int16_t *mag, int16_t *temp) {
     uint8_t buffer[21];
 
@@ -127,52 +112,55 @@ void MPU9250_ReadData(int16_t *accel, int16_t *gyro, int16_t *mag, int16_t *temp
 
     SPI1BUF = ACCEL_XOUT_H | 0x80;  // Iniciar leitura a partir do registrador 0x3B
     for (int i = 0; i < 21; i++) {
-        while (!SPI1STATbits.SPIRBF);  // Esperar o buffer de recepção estar cheio
+        while (!SPI1STATbits.SPIRBF);  // Esperar o buffer de recepÃ§Ã£o estar cheio
         buffer[i] = SPI1BUF;
     }
 
    SSMPU_SetHigh();                                                                             // Desativa o chip MPU9250
 
     // Converter os dados lidos para inteiros de 16 bits
-    accel[0] = (buffer[0] << 8) | buffer[1];  // Aceleração X
-    accel[1] = (buffer[2] << 8) | buffer[3];  // Aceleração Y
-    accel[2] = (buffer[4] << 8) | buffer[5];  // Aceleração Z
+    accel[0] = (buffer[0] << 8) | buffer[1];  // AceleraÃ§Ã£o X
+    accel[1] = (buffer[2] << 8) | buffer[3];  // AceleraÃ§Ã£o Y
+    accel[2] = (buffer[4] << 8) | buffer[5];  // AceleraÃ§Ã£o Z
     temp[0] = (buffer[6] << 8) | buffer[7];   // Temperatura
-    gyro[0] = (buffer[8] << 8) | buffer[9];   // Giroscópio X
-    gyro[1] = (buffer[10] << 8) | buffer[11]; // Giroscópio Y
-    gyro[2] = (buffer[12] << 8) | buffer[13]; // Giroscópio Z
-    mag[0] = (buffer[15] << 8) | buffer[14];  // Magnetômetro X
-    mag[1] = (buffer[17] << 8) | buffer[16];  // Magnetômetro Y
-    mag[2] = (buffer[19] << 8) | buffer[18];  // Magnetômetro Z
+    gyro[0] = (buffer[8] << 8) | buffer[9];   // GiroscÃ³pio X
+    gyro[1] = (buffer[10] << 8) | buffer[11]; // GiroscÃ³pio Y
+    gyro[2] = (buffer[12] << 8) | buffer[13]; // GiroscÃ³pio Z
+    mag[0] = (buffer[15] << 8) | buffer[14];  // MagnetÃ´metro X
+    mag[1] = (buffer[17] << 8) | buffer[16];  // MagnetÃ´metro Y
+    mag[2] = (buffer[19] << 8) | buffer[18];  // MagnetÃ´metro Z
 }
 
-// Função para colocar o MPU9250 em modo de baixo consumo (sleep)
+// FunÃ§Ã£o para colocar o MPU9250 em modo de baixo consumo (sleep)
 void MPU9250_Sleep(void) {
     //MPU9250_WriteRegister(CNTL, 0x00);                                                                // power-down mode manetometer
     MPU9250_WriteRegister(PWR_MGMT_1, 0x40);  // Habilitar sleep mode
 }
 
-// Função para acordar o MPU9250
+// FunÃ§Ã£o para acordar o MPU9250
 void MPU9250_Wake(void) {
     //MPU9250_WriteRegister(CNTL, 0x02);                                                                // continuous mode read of the magnetometer
     MPU9250_WriteRegister(PWR_MGMT_1, 0x01);  // Desabilitar sleep mode
 }
 
-// Função para verificar erros
+// FunÃ§Ã£o para verificar erros
 uint8_t MPU9250_CheckError(void) {
-    uint8_t status = MPU9250_ReadRegister(INT_STATUS);
-    return (status & 0x01);  // Retorna 1 se houver erro
+    uint8_t who_am_i = MPU9250_ReadRegister(WHO_AM_I);
+    if (who_am_i != WHO_AM_I_RESULT) {  // 0x71 Ã© o valor esperado para o MPU9250
+        return 1;  // Retorna 1 se houver erro
+    }
+    return 0;  // Retorna 0 se nÃ£o houver erro
 }
 
 /*
-// Função de interrupção externa para o pino IRQMPU
+// FunÃ§Ã£o de interrupÃ§Ã£o externa para o pino IRQMPU
 void __attribute__((interrupt, no_auto_psv)) _INT1Interrupt(void) {
-    IFS1bits.INT1IF = 0;  // Limpar flag de interrupção
+    IFS1bits.INT1IF = 0;  // Limpar flag de interrupÃ§Ã£o
 
-    // Aqui você pode adicionar o código para tratar a interrupção
+    // Aqui vocÃª pode adicionar o cÃ³digo para tratar a interrupÃ§Ã£o
     int16_t accel[3], gyro[3], mag[3], temp;
     MPU9250_ReadData(accel, gyro, mag, &temp);
 
-    // Faça algo com os dados lidos...
+    // FaÃ§a algo com os dados lidos...
 }
  */

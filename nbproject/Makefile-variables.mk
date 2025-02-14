@@ -6,5 +6,5 @@
 CND_BASEDIR=`pwd`
 # default configuration
 CND_ARTIFACT_DIR_default=dist/default/production
-CND_ARTIFACT_NAME_default=TCC_FINAL.X.production.hex
-CND_ARTIFACT_PATH_default=dist/default/production/TCC_FINAL.X.production.hex
+CND_ARTIFACT_NAME_default=lastTry.X.production.hex
+CND_ARTIFACT_PATH_default=dist/default/production/lastTry.X.production.hex

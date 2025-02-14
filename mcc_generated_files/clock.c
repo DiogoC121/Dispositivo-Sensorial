@@ -13,7 +13,7 @@
   @Description:
     This header file provides implementations for driver APIs for all modules selected in the GUI.
     Generation Information :
-        Product Revision  :  PIC24 / dsPIC33 / PIC32MM MCUs - 1.171.4
+        Product Revision  :  PIC24 / dsPIC33 / PIC32MM MCUs - 1.171.5
         Device            :  PIC24FJ64GA002
     The generated drivers are tested against the following:
         Compiler          :  XC16 v2.10
@@ -48,17 +48,17 @@
 
 void CLOCK_Initialize(void)
 {
-    // RCDIV FRC/2; DOZE 1:16; DOZEN enabled; ROI enabled; 
-    CLKDIV = 0xC900;
+    // RCDIV FRC/2; DOZE 1:8; DOZEN disabled; ROI disabled; 
+    CLKDIV = 0x3100;
     // TUN Center frequency; 
     OSCTUN = 0x00;
-    // ADC1MD enabled; T3MD disabled; T4MD disabled; T1MD enabled; U2MD disabled; T2MD disabled; U1MD disabled; SPI2MD disabled; SPI1MD enabled; T5MD disabled; I2C1MD disabled; 
-    PMD1 = 0xF0F0;
-    // OC5MD disabled; IC5MD disabled; IC4MD disabled; IC3MD disabled; OC1MD disabled; IC2MD disabled; OC2MD disabled; IC1MD disabled; OC3MD disabled; OC4MD disabled; 
-    PMD2 = 0x1F1F;
-    // PMPMD disabled; RTCCMD disabled; CMPMD disabled; CRCPMD disabled; I2C2MD disabled; 
-    PMD3 = 0x782;
-    // NOSC FRC; SOSCEN disabled; OSWEN Switch is Complete; 
-    __builtin_write_OSCCONH((uint8_t) (0x00));
+    // ADC1MD enabled; T3MD enabled; T4MD enabled; T1MD enabled; U2MD enabled; T2MD enabled; U1MD enabled; SPI2MD enabled; SPI1MD enabled; T5MD enabled; I2C1MD enabled; 
+    PMD1 = 0x00;
+    // OC5MD enabled; IC5MD enabled; IC4MD enabled; IC3MD enabled; OC1MD enabled; IC2MD enabled; OC2MD enabled; IC1MD enabled; OC3MD enabled; OC4MD enabled; 
+    PMD2 = 0x00;
+    // PMPMD enabled; RTCCMD enabled; CMPMD enabled; CRCPMD enabled; I2C2MD enabled; 
+    PMD3 = 0x00;
+    // NOSC FRCDIV; SOSCEN disabled; OSWEN Switch is Complete; 
+    __builtin_write_OSCCONH((uint8_t) (0x07));
     __builtin_write_OSCCONL((uint8_t) (0x00));
 }
