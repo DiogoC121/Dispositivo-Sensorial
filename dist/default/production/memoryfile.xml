@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project>
-  <executable name="dist/default/production/TCC2FINAL.X.production.elf">
+  <executable name="dist/default/production/Dispositivo-Sensorial.production.elf">
     <memory name="data">
       <units>bytes</units>
       <length>8192</length>
-      <used>234</used>
-      <free>7958</free>
+      <used>230</used>
+      <free>7962</free>
     </memory>
     <memory name="program">
       <units>bytes</units>
       <length>65274</length>
-      <used>12000</used>
-      <free>53274</free>
+      <used>11883</used>
+      <free>53391</free>
     </memory>
   </executable>
 </project>

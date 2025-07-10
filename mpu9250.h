@@ -15,17 +15,22 @@
 
 /**
  * @brief Initializes the MPU9250 sensor.
- * @details Configures power management, gyroscope, accelerometer, and interrupt settings.
  */
 void MPU9250_Init(void);
 
 /**
  * @brief Reads data from all relevant sensors in the MPU9250.
- * @param accelData Pointer to an array of 3 int16_t to store accelerometer data (X, Y, Z).
- * @param gyroData Pointer to an array of 3 int16_t to store gyroscope data (X, Y, Z).
- * @param magData Pointer to an array of 3 int16_t to store magnetometer data (X, Y, Z).
- * @param tempData Pointer to an int16_t to store temperature data. Can be NULL if not needed.
  */
 void MPU9250_ReadData(int16_t* accelData, int16_t* gyroData, int16_t* magData, int16_t* tempData);
+
+/**
+ * @brief Puts the MPU9250 into sleep mode.
+ */
+void MPU9250_Sleep(void);
+
+/**
+ * @brief Wakes the MPU9250 from sleep mode.
+ */
+void MPU9250_Wake(void);
 
 #endif // MPU9250_H

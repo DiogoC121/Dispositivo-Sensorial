@@ -1,4 +1,3 @@
-
 /**
   EXT_INT Generated Driver File 
 
@@ -50,12 +49,7 @@
 
 #include "ext_int.h"
 #include <stdbool.h>
-
-#include "../flags.h"
-
-//***User Area Begin->code: Add External Interrupt handler specific headers 
-
-//***User Area End->code: Add External Interrupt handler specific headers
+#include "../flags.h" // <-- ADICIONADO PARA ACESSO ÀS FLAGS GLOBAIS
 
 /**
    Section: External Interrupt Handlers
@@ -71,13 +65,10 @@
 */
 void __attribute__ ( ( interrupt, no_auto_psv ) ) _INT0Interrupt(void)
 {
-    //***User Area Begin->code: INT0 - External Interrupt 0***
-	
 	EX_INT0_CallBack();
-    
-	//***User Area End->code: INT0 - External Interrupt 0***
     EX_INT0_InterruptFlagClear();
 }
+
  void __attribute__ ((weak)) EX_INT1_CallBack(void)
 {
     f_mpu = true;
@@ -88,11 +79,7 @@ void __attribute__ ( ( interrupt, no_auto_psv ) ) _INT0Interrupt(void)
 */
 void __attribute__ ( ( interrupt, no_auto_psv ) ) _INT1Interrupt(void)
 {
-    //***User Area Begin->code: INT1 - External Interrupt 1***
-	
 	EX_INT1_CallBack();
-    
-	//***User Area End->code: INT1 - External Interrupt 1***
     EX_INT1_InterruptFlagClear();
 }
 /**

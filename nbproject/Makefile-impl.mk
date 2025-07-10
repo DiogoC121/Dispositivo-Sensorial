@@ -24,7 +24,7 @@ CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}
 
 
 # Project Name
-PROJECTNAME=TCC2FINAL.X
+PROJECTNAME=Dispositivo-Sensorial
 
 # Active Configuration
 DEFAULTCONF=default

@@ -1,6 +1,7 @@
 #include "mpu9250.h"
 #include "mcc_generated_files/spi1.h"
 #include "mcc_generated_files/pin_manager.h"
+#include "defines.h" 
 #include <stddef.h>
 
 // --- Helper Functions ---
@@ -63,7 +64,6 @@ void MPU9250_ReadData(int16_t* accelData, int16_t* gyroData, int16_t* magData, i
     }
 
     if(tempData != NULL) {
-        // Temperature data is between accel and gyro data
         *tempData = (int16_t)(buffer[6] << 8 | buffer[7]);
     }
 
@@ -73,11 +73,20 @@ void MPU9250_ReadData(int16_t* accelData, int16_t* gyroData, int16_t* magData, i
         gyroData[2] = (int16_t)(buffer[12] << 8 | buffer[13]);
     }
     
-    // Magnetometer reading is more complex and requires I2C bypass mode.
-    // For this fix, we will return zeros for the magnetometer.
     if(magData != NULL) {
         magData[0] = 0;
         magData[1] = 0;
         magData[2] = 0;
     }
+}
+
+void MPU9250_Sleep(void) {
+    uint8_t pwr_mgmt_1 = mpu_read_reg(MPU9250_REG_PWR_MGMT_1);
+    mpu_write_reg(MPU9250_REG_PWR_MGMT_1, pwr_mgmt_1 | 0x40); // Set SLEEP bit
+}
+
+void MPU9250_Wake(void) {
+    uint8_t pwr_mgmt_1 = mpu_read_reg(MPU9250_REG_PWR_MGMT_1);
+    mpu_write_reg(MPU9250_REG_PWR_MGMT_1, pwr_mgmt_1 & ~0x40); // Clear SLEEP bit
+    __delay_ms(10); 
 }

@@ -24,6 +24,7 @@
 #define NRF_CMD_W_TX_PAYLOAD  0xA0
 #define NRF_CMD_FLUSH_TX      0xE1
 #define NRF_CMD_FLUSH_RX      0xE2
+#define NRF_CMD_NOP           0xFF
 
 // --- Helper Functions ---
 static void nrf_write_reg(uint8_t reg, uint8_t value) {
@@ -46,24 +47,9 @@ static uint8_t nrf_read_reg(uint8_t reg) {
     uint8_t value;
     SSNRF_SetLow();
     SPI1_Exchange8bit(reg);
-    value = SPI1_Exchange8bit(0xFF); // Dummy byte
+    value = SPI1_Exchange8bit(NRF_CMD_NOP);
     SSNRF_SetHigh();
     return value;
-}
-
-static void nrf_set_rx_mode(void) {
-    uint8_t config = nrf_read_reg(NRF_REG_CONFIG);
-    config |= (1 << 0); // PRIM_RX = 1
-    nrf_write_reg(NRF_REG_CONFIG, config);
-    CENRF_SetHigh(); // Start listening
-    __delay_us(150);
-}
-
-static void nrf_set_tx_mode(void) {
-    CENRF_SetLow();
-    uint8_t config = nrf_read_reg(NRF_REG_CONFIG);
-    config &= ~(1 << 0); // PRIM_RX = 0
-    nrf_write_reg(NRF_REG_CONFIG, config);
 }
 
 // --- Interface Functions ---
@@ -73,23 +59,22 @@ void NRF24L01_Init(void) {
     SSNRF_SetHigh();
     __delay_ms(100);
 
-    // Config: CRC enabled (2 bytes), Power Up, TX mode
     nrf_write_reg(NRF_REG_CONFIG, 0x0E); 
     __delay_ms(5);
     
-    nrf_write_reg(NRF_REG_EN_AA, 0x01);      // Enable Auto-Ack on Pipe 0
-    nrf_write_reg(NRF_REG_EN_RXADDR, 0x01);  // Enable RX on Pipe 0
-    nrf_write_reg(NRF_REG_SETUP_AW, 0x03);   // 5-byte address width
-    nrf_write_reg(NRF_REG_RF_CH, NRF_CHANNEL); // Set RF channel
-    nrf_write_reg(NRF_REG_RF_SETUP, 0x06);   // 1Mbps, 0dBm power
+    nrf_write_reg(NRF_REG_EN_AA, 0x01);
+    nrf_write_reg(NRF_REG_EN_RXADDR, 0x01);
+    nrf_write_reg(NRF_REG_SETUP_AW, 0x03);
+    nrf_write_reg(NRF_REG_RF_CH, NRF_CHANNEL);
+    nrf_write_reg(NRF_REG_RF_SETUP, 0x06);
     
     uint8_t addr[] = NRF_ADDRESS;
     nrf_write_reg_multi(NRF_REG_TX_ADDR, addr, 5);
     nrf_write_reg_multi(NRF_REG_RX_ADDR_P0, addr, 5);
     
-    nrf_write_reg(NRF_REG_RX_PW_P0, BUFFER_SIZE * sizeof(int16_t)); // Payload size
+    nrf_write_reg(NRF_REG_RX_PW_P0, BUFFER_SIZE * sizeof(int16_t));
     
-    nrf_set_rx_mode(); // Default to receiver mode
+    NRF24L01_SetRXMode();
 }
 
 bool NRF24L01_Check(void) {
@@ -97,62 +82,89 @@ bool NRF24L01_Check(void) {
     return (setup_aw == 0x03);
 }
 
-bool NRF24L01_TransmitPayload(uint8_t* payload, uint8_t length) {
-    nrf_set_tx_mode();
+void NRF24L01_SetTXMode(void) {
+    CENRF_SetLow();
+    uint8_t config = nrf_read_reg(NRF_REG_CONFIG);
+    nrf_write_reg(NRF_REG_CONFIG, config & 0xFE); // PRIM_RX = 0
+}
 
-    // Write payload to TX FIFO
+void NRF24L01_SetRXMode(void) {
+    uint8_t config = nrf_read_reg(NRF_REG_CONFIG);
+    nrf_write_reg(NRF_REG_CONFIG, config | 0x01); // PRIM_RX = 1
+    CENRF_SetHigh();
+}
+
+bool NRF24L01_WritePayload(uint8_t* payload, uint8_t length) {
     SSNRF_SetLow();
     SPI1_Exchange8bit(NRF_CMD_W_TX_PAYLOAD);
-    for (uint8_t i = 0; i < length; i++) {
-        SPI1_Exchange8bit(payload[i]);
-    }
+    SPI1_Exchange8bitBuffer(payload, length, NULL);
     SSNRF_SetHigh();
 
-    // Pulse CE to transmit
     CENRF_SetHigh();
     __delay_us(15);
     CENRF_SetLow();
 
-    // Wait for transmission to complete (or fail)
     uint8_t status;
-    uint16_t timeout = 5000; // ~5ms timeout
+    uint16_t timeout = 5000;
     while(timeout > 0) {
-        status = nrf_read_reg(NRF_REG_STATUS);
-        if (status & ((1 << 5) | (1 << 4))) { // TX_DS or MAX_RT
+        status = NRF24L01_CheckStatus();
+        if (status & ((1 << 5) | (1 << 4))) {
             break;
         }
         __delay_us(1);
         timeout--;
     }
 
-    bool success = false;
-    if (status & (1 << 5)) { // TX_DS (Data Sent)
-        success = true;
+    if (status & (1 << 5)) {
+        nrf_write_reg(NRF_REG_STATUS, (1 << 5));
+        NRF24L01_flush_tx();
+        return true;
     }
     
-    // Clear status flags and flush TX FIFO
-    nrf_write_reg(NRF_REG_STATUS, (1 << 5) | (1 << 4));
-    SSNRF_SetLow();
-    SPI1_Exchange8bit(NRF_CMD_FLUSH_TX);
-    SSNRF_SetHigh();
-
-    nrf_set_rx_mode(); // Go back to listening
-    return success;
-}
-
-bool NRF24L01_IsDataAvailable(void) {
-    uint8_t status = nrf_read_reg(NRF_REG_STATUS);
-    return (status & (1 << 6)); // Check RX_DR flag
+    NRF24L01_flush_tx();
+    return false;
 }
 
 void NRF24L01_ReadPayload(uint8_t* payload, uint8_t length) {
     SSNRF_SetLow();
     SPI1_Exchange8bit(NRF_CMD_R_RX_PAYLOAD);
-    for (uint8_t i = 0; i < length; i++) {
-        payload[i] = SPI1_Exchange8bit(0xFF);
-    }
+    SPI1_Exchange8bitBuffer(NULL, length, payload);
     SSNRF_SetHigh();
-    
-    // Clear RX_DR flag
-    nrf_write_reg(NRF_REG_STATUS, (1 << 6));
+    nrf_write_reg(NRF_REG_STATUS, (1 << 6)); // Clear RX_DR
+}
+
+uint8_t NRF24L01_CheckStatus(void) {
+    return nrf_read_reg(NRF_REG_STATUS);
+}
+
+bool NRF24L01_rx_fifo_not_empty(void) {
+    uint8_t fifo_status = nrf_read_reg(NRF_REG_FIFO_STATUS);
+    return !(fifo_status & (1 << 0));
+}
+
+void NRF24L01_flush_tx(void) {
+    SSNRF_SetLow();
+    SPI1_Exchange8bit(NRF_CMD_FLUSH_TX);
+    SSNRF_SetHigh();
+}
+
+void NRF24L01_flush_rx(void) {
+    SSNRF_SetLow();
+    SPI1_Exchange8bit(NRF_CMD_FLUSH_RX);
+    SSNRF_SetHigh();
+}
+
+void NRF24L01_ClearInterrupts(void) {
+    nrf_write_reg(NRF_REG_STATUS, (1 << 6) | (1 << 5) | (1 << 4));
+}
+
+void NRF24L01_Sleep(void) {
+    uint8_t config = nrf_read_reg(NRF_REG_CONFIG);
+    nrf_write_reg(NRF_REG_CONFIG, config & ~(1 << 1)); // PWR_UP = 0
+}
+
+void NRF24L01_Wake(void) {
+    uint8_t config = nrf_read_reg(NRF_REG_CONFIG);
+    nrf_write_reg(NRF_REG_CONFIG, config | (1 << 1)); // PWR_UP = 1
+    __delay_ms(5); // Wait for oscillator to stabilize
 }

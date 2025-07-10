@@ -1,4 +1,3 @@
-
 /**
   TMR1 Generated Driver API Source File 
 
@@ -49,7 +48,7 @@
 
 #include <stdio.h>
 #include "tmr1.h"
-#include "../flags.h"
+#include "../flags.h" // <-- ADICIONADO PARA ACESSO ÀS FLAGS GLOBAIS
 
 /**
  Section: File specific functions
@@ -115,16 +114,12 @@ void __attribute__ ( ( interrupt, no_auto_psv ) ) _T1Interrupt (  )
 {
     /* Check if the Timer Interrupt/Status is set */
 
-    //***User Area Begin
-
     // ticker function call;
     // ticker is 1 -> Callback function gets called everytime this ISR executes
     if(TMR1_InterruptHandler) 
     { 
            TMR1_InterruptHandler(); 
     }
-
-    //***User Area End
 
     tmr1_obj.count++;
     tmr1_obj.timerElapsed = true;

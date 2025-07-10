@@ -8,15 +8,21 @@
 // pois elas podem ser modificadas a qualquer momento por uma interrupção.
 
 // Sinaliza que a interrupção do MPU9250 (dados prontos) ocorreu.
-volatile bool flag_mpu_data_ready;
+extern volatile bool f_mpu;
 
 // Sinaliza que a interrupção do NRF24L01+ ocorreu.
-volatile bool flag_nrf_irq;
+extern volatile bool f_nrf;
 
 // Sinaliza que a interrupção do Timer1 (período de amostragem) ocorreu.
-volatile bool flag_timer_irq;
+extern volatile bool f_timer;
 
 // Sinaliza que um comando válido foi recebido do gateway e está pronto para ser processado.
-volatile bool flag_gateway_command_received;
+extern volatile bool dados_recebidos;
+
+// Sinaliza que houve conexão
+extern volatile bool f_conectado_gateway;
+ 
+// Sinaliza erro.
+extern volatile int f_erro;
 
 #endif // FLAGS_H

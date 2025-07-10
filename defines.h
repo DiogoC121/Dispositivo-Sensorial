@@ -29,7 +29,7 @@
 
 // --- Configurações da Comunicação NRF24L01+ ---
 #define NRF_CHANNEL         76      // Canal de RF (0-125)
-#define NRF_ADDRESS         {0x52, 0xA0, 0xC1, 0x71, 0x1E} // Endereço de 5 bytes para a comunicação
+#define NRF_ADDRESS         {0x52, 0x00, 0xE1, 0xAB, 0x12} // Endereço de 5 bytes para a comunicação
 
 // --- Configurações de Tensão e ADC ---
 #define VIN_MCU             2.5f    // Tensão de operação do circuito (V)
@@ -42,11 +42,14 @@
 #define T0_NTC              298.15f // Temperatura de referência em Kelvin (25 °C)
 #define R0_NTC              10000.0f// Resistência nominal do termistor em T0 (Ohms)
 
-// --- Parâmetros dos Sensores de Deformação (Strain Gauge) ---
+// --- Parâmetros dos Sensores de Deformação (Strain Gauge) ---// --- Parâmetros dos Sensores de Deformação (Strain Gauge) ---
 #define VREF_AMP            1.25f   // Tensão de referência do amplificador de instrumentação (V)
 #define GANHO_AMP           25.0f   // Ganho configurado no amplificador de instrumentação
 #define VEXC_PONTE          2.5f    // Tensão de excitação da ponte (V)
 #define GF_STRAIN           2.0f    // Fator de medição (Gauge Factor) do strain gauge
+#define E_MODULUS           200e9f  // Módulo de Young do material em teste (ex: Aço = 200 GPa)
+#define AREA_SECAO          1e-4f   // Área da seção transversal do material (ex: 1cm² = 0.0001 m²)
+
 
 // --- Parâmetros de Sensibilidade do MPU9250 (Exemplo para uma configuração) ---
 // Estes valores devem corresponder à configuração real no driver do MPU9250
