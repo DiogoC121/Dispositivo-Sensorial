@@ -16,7 +16,7 @@
 
 // --- Protótipos das Funções Locais ---
 void setup(void);
-void loop_principal(void);
+void loop(void);
 void ler_todos_sensores(void);
 void calcular_angulos_euler(void);
 void processar_dados_para_envio(void);
@@ -68,12 +68,11 @@ static uint8_t velocidade_atual_idx = 0;
 // --- Função Principal ---
 int main(void) {
     setup();
-    loop_principal();
+    loop();
     return 1;
 }
 
 // --- Implementação das Funções ---
-
 void setup(void) {
     uint16_t contador_tentativas = 0;
 
@@ -108,7 +107,7 @@ void setup(void) {
     LED_SetLow();
 }
 
-void loop_principal(void) {
+void loop(void) {
     while (1) {
         if (f_erro != 0) {
             tratar_erros();
@@ -117,7 +116,6 @@ void loop_principal(void) {
         if (!f_timer && !f_mpu && !f_nrf) {
             entrar_modo_baixo_consumo();
         }
-        
         tratar_interrupcoes();
     }
 }
