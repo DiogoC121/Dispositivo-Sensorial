@@ -18,6 +18,7 @@
 void setup(void);
 void loop_principal(void);
 void ler_todos_sensores(void);
+void calcular_angulos_euler(void);
 void processar_dados_para_envio(void);
 void enviar_dados(void);
 void receber_comando(void);
@@ -50,10 +51,10 @@ KalmanState kalman_pitch;
 
 // Variáveis para armazenar dados dos sensores
 int16_t dados_acelerometro[3], dados_giroscopio[3], dados_magnetometro[3];
-int16_t temperatura_ntc;
+int16_t temperatura_mpu, temperatura_ntc;
 int16_t nivel_bateria_percentual;
 int16_t sgx_microstrain, sgy_microstrain, sgz_microstrain;
-float angulo_roll_filtrado, angulo_pitch_filtrado;
+float angulo_roll_filtrado, angulo_pitch_filtrado, angulo_yaw_filtrado;
 uint8_t comando_recebido = 0;
 
 // Períodos pré-configurados para o Timer1
@@ -133,7 +134,7 @@ void tratar_interrupcoes(void) {
     if (f_mpu) {
         f_mpu = false;
         acordar_dispositivo();
-        MPU9250_ReadData(dados_acelerometro, dados_giroscopio, dados_magnetometro, NULL);
+        ler_todos_sensores();
         processar_dados_para_envio();
     }
 
@@ -176,31 +177,59 @@ void ler_todos_sensores(void) {
     sgz_microstrain = strain_gauge_para_microstrain(get_leitura_adc(SGZ));
 }
 
-void processar_dados_para_envio(void) {
+void calcular_angulos_euler(void) {
+    // Converte dados brutos para unidades físicas (g e °/s)
     float ax_g = (float)dados_acelerometro[0] / MPU_ACCEL_SENSITIVITY_4G;
     float ay_g = (float)dados_acelerometro[1] / MPU_ACCEL_SENSITIVITY_4G;
     float az_g = (float)dados_acelerometro[2] / MPU_ACCEL_SENSITIVITY_4G;
     float gx_dps = (float)dados_giroscopio[0] / MPU_GYRO_SENSITIVITY_500DPS;
     float gy_dps = (float)dados_giroscopio[1] / MPU_GYRO_SENSITIVITY_500DPS;
-
+    
+    // Calcula pitch e roll iniciais a partir do acelerômetro
     float angulo_roll_acel = atan2f(ay_g, az_g) * (180.0f / M_PI);
     float angulo_pitch_acel = atanf(-ax_g / sqrtf(ay_g * ay_g + az_g * az_g)) * (180.0f / M_PI);
 
+    // Aplica o filtro de Kalman para obter pitch e roll filtrados
     angulo_roll_filtrado = kalman_get_angle(&kalman_roll, angulo_roll_acel, gx_dps, KALMAN_DT);
     angulo_pitch_filtrado = kalman_get_angle(&kalman_pitch, angulo_pitch_acel, gy_dps, KALMAN_DT);
 
-    txBuffer[0] = (int16_t)(angulo_roll_filtrado * 100);
-    txBuffer[1] = (int16_t)(angulo_pitch_filtrado * 100);
-    txBuffer[2] = dados_giroscopio[2];
-    txBuffer[3] = dados_magnetometro[0];
-    txBuffer[4] = dados_magnetometro[1];
-    txBuffer[5] = dados_magnetometro[2];
-    txBuffer[6] = temperatura_ntc;
-    txBuffer[7] = nivel_bateria_percentual;
-    txBuffer[8] = sgx_microstrain;
-    txBuffer[9] = sgy_microstrain;
-    txBuffer[10] = sgz_microstrain;
-    txBuffer[11] = f_erro;
+    // Calcula Yaw (guinada) usando o magnetômetro
+    float mag_x = (float)dados_magnetometro[0];
+    float mag_y = (float)dados_magnetometro[1];
+    
+    float pitch_rad = angulo_pitch_filtrado * (M_PI / 180.0f);
+    float roll_rad = angulo_roll_filtrado * (M_PI / 180.0f);
+    
+    float mag_x_comp = mag_x * cosf(pitch_rad) + mag_y * sinf(pitch_rad) * sinf(roll_rad);
+    float mag_y_comp = mag_y * cosf(roll_rad);
+    
+    angulo_yaw_filtrado = atan2f(-mag_y_comp, mag_x_comp) * (180.0f / M_PI);
+}
+
+void processar_dados_para_envio(void) {
+    // Calcula os ângulos antes de preencher o buffer
+    calcular_angulos_euler();
+
+    // Preenche o buffer na ordem solicitada
+    txBuffer[0] = dados_acelerometro[0];
+    txBuffer[1] = dados_acelerometro[1];
+    txBuffer[2] = dados_acelerometro[2];
+    txBuffer[3] = dados_giroscopio[0];
+    txBuffer[4] = dados_giroscopio[1];
+    txBuffer[5] = dados_giroscopio[2];
+    txBuffer[6] = dados_magnetometro[0];
+    txBuffer[7] = dados_magnetometro[1];
+    txBuffer[8] = dados_magnetometro[2];
+    txBuffer[9] = temperatura_mpu;
+    txBuffer[10] = temperatura_ntc;
+    txBuffer[11] = nivel_bateria_percentual;
+    txBuffer[12] = sgx_microstrain;
+    txBuffer[13] = sgy_microstrain;
+    txBuffer[14] = sgz_microstrain;
+    txBuffer[15] = f_erro;
+    txBuffer[16] = (int16_t)(angulo_pitch_filtrado * 100);
+    txBuffer[17] = (int16_t)(angulo_roll_filtrado * 100);
+    txBuffer[18] = (int16_t)(angulo_yaw_filtrado * 100);
 }
 
 void enviar_dados(void) {

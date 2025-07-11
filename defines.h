@@ -20,7 +20,7 @@
 #define CMD_RECONFIG_TIMMER     0x02 // Comando para reconfigurar o timer de leitura
 
 // --- Configurações Gerais da Aplicação ---
-#define BUFFER_SIZE         12      // Tamanho do buffer de transmissão em int16_t (total 24 bytes)
+#define BUFFER_SIZE         19      // Tamanho do buffer de transmissão em int16_t (total 38 bytes)
 #define KALMAN_DT           0.015f  // Intervalo de tempo (dt) para o filtro, baseado no período do Timer1 (15 ms)
 
 #ifndef M_PI
@@ -29,7 +29,7 @@
 
 // --- Configurações da Comunicação NRF24L01+ ---
 #define NRF_CHANNEL         76      // Canal de RF (0-125)
-#define NRF_ADDRESS         {0x52, 0x00, 0xE1, 0xAB, 0x12} // Endereço de 5 bytes para a comunicação
+#define NRF_ADDRESS         {0x52, 0xA0, 0xC1, 0x71, 0x1E} // Endereço de 5 bytes para a comunicação
 
 // --- Configurações de Tensão e ADC ---
 #define VIN_MCU             2.5f    // Tensão de operação do circuito (V)
@@ -42,7 +42,7 @@
 #define T0_NTC              298.15f // Temperatura de referência em Kelvin (25 °C)
 #define R0_NTC              10000.0f// Resistência nominal do termistor em T0 (Ohms)
 
-// --- Parâmetros dos Sensores de Deformação (Strain Gauge) ---// --- Parâmetros dos Sensores de Deformação (Strain Gauge) ---
+// --- Parâmetros dos Sensores de Deformação (Strain Gauge) ---
 #define VREF_AMP            1.25f   // Tensão de referência do amplificador de instrumentação (V)
 #define GANHO_AMP           25.0f   // Ganho configurado no amplificador de instrumentação
 #define VEXC_PONTE          2.5f    // Tensão de excitação da ponte (V)
@@ -50,9 +50,7 @@
 #define E_MODULUS           200e9f  // Módulo de Young do material em teste (ex: Aço = 200 GPa)
 #define AREA_SECAO          1e-4f   // Área da seção transversal do material (ex: 1cm² = 0.0001 m²)
 
-
 // --- Parâmetros de Sensibilidade do MPU9250 (Exemplo para uma configuração) ---
-// Estes valores devem corresponder à configuração real no driver do MPU9250
 #define MPU_ACCEL_SENSITIVITY_4G    8192.0f  // LSB/g para fundo de escala de +/-4g
 #define MPU_GYRO_SENSITIVITY_500DPS 65.5f    // LSB/(°/s) para fundo de escala de +/-500°/s
 
