@@ -210,7 +210,7 @@ void processar_dados_para_envio(void) {
     // Calcula os ângulos antes de preencher o buffer
     calcular_angulos_euler();
 
-    // Preenche o buffer na ordem solicitada
+    // Preenche o buffer na ordem
     txBuffer[0] = dados_acelerometro[0];
     txBuffer[1] = dados_acelerometro[1];
     txBuffer[2] = dados_acelerometro[2];
